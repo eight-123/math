@@ -1,0 +1,6106 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+    name="viewport"
+    content="width=device-width, initial-scale=1.0"
+>
+
+<title>関数攻略</title>
+
+
+<style>
+
+/* ========================================
+   基本
+======================================== */
+
+* {
+    box-sizing: border-box;
+}
+
+body {
+
+    margin: 0;
+
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        sans-serif;
+
+    background:
+        linear-gradient(
+            135deg,
+            #eef4ff,
+            #f8faff
+        );
+
+    color: #24324a;
+}
+
+
+button,
+input {
+
+    font: inherit;
+
+}
+
+
+button {
+
+    cursor: pointer;
+
+}
+
+
+/* ========================================
+   共通画面
+======================================== */
+
+.screen {
+
+    width:
+        min(
+            1200px,
+            calc(100% - 30px)
+        );
+
+    margin:
+        auto;
+
+    padding:
+        30px 0 50px;
+
+}
+
+
+/* ========================================
+   タイトル
+======================================== */
+
+.title {
+
+    text-align: center;
+
+    font-size: 40px;
+
+    font-weight: 900;
+
+}
+
+
+.subtitle {
+
+    text-align: center;
+
+    color: #71809b;
+
+    margin:
+        8px 0 30px;
+
+}
+
+
+/* ========================================
+   ステージ選択
+======================================== */
+
+.stage-grid {
+
+    display: grid;
+
+    grid-template-columns:
+        repeat(
+            auto-fit,
+            minmax(
+                220px,
+                1fr
+            )
+        );
+
+    gap: 18px;
+
+}
+
+
+.stage-card {
+
+    border: 0;
+
+    border-radius: 20px;
+
+    padding: 22px;
+
+    text-align: left;
+
+    background: white;
+
+    box-shadow:
+        0 8px 25px
+        rgba(
+            60,
+            80,
+            120,
+            .12
+        );
+
+    transition:
+        transform .15s,
+        box-shadow .15s;
+
+}
+
+
+.stage-card:hover {
+
+    transform:
+        translateY(-3px);
+
+    box-shadow:
+        0 12px 30px
+        rgba(
+            60,
+            80,
+            120,
+            .18
+        );
+
+}
+
+
+.stage-card.locked {
+
+    opacity: .5;
+
+    cursor:
+        not-allowed;
+
+}
+
+
+.stage-number {
+
+    font-size: 13px;
+
+    color: #71809b;
+
+}
+
+
+.stage-name {
+
+    margin-top: 5px;
+
+    font-size: 21px;
+
+    font-weight: 900;
+
+}
+
+
+.stage-description {
+
+    margin-top: 8px;
+
+    font-size: 14px;
+
+    color: #71809b;
+
+}
+
+
+.difficulty {
+
+    margin-top: 15px;
+
+}
+
+
+/* ========================================
+   戻る
+======================================== */
+
+.back {
+
+    border: 0;
+
+    background:
+        transparent;
+
+    color: #617394;
+
+    margin-bottom: 15px;
+
+}
+
+
+/* ========================================
+   ゲーム上部
+======================================== */
+
+.game-top {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items:
+        center;
+
+    gap: 15px;
+
+    margin-bottom: 20px;
+
+}
+
+
+.game-stage {
+
+    color: #71809b;
+
+    font-size: 14px;
+
+}
+
+
+.game-title {
+
+    font-size: 30px;
+
+    font-weight: 900;
+
+}
+
+
+.combo {
+
+    background: white;
+
+    padding:
+        10px 16px;
+
+    border-radius:
+        999px;
+
+    box-shadow:
+        0 5px 20px
+        rgba(
+            60,
+            80,
+            120,
+            .1
+        );
+
+    font-weight: 900;
+
+}
+
+
+/* ========================================
+   ゲーム画面
+======================================== */
+
+.game-layout {
+
+    display: grid;
+
+    grid-template-columns:
+        minmax(0, 1.5fr)
+        minmax(300px, 1fr);
+
+    gap: 20px;
+
+}
+
+
+.card {
+
+    background: white;
+
+    border-radius: 24px;
+
+    padding: 22px;
+
+    box-shadow:
+        0 8px 30px
+        rgba(
+            60,
+            80,
+            120,
+            .12
+        );
+
+}
+
+
+/* ========================================
+   Canvas
+======================================== */
+
+canvas {
+
+    display: block;
+
+    width: 100%;
+
+    height: auto;
+
+    border-radius: 15px;
+
+    background:
+        #f9fbff;
+
+}
+
+
+/* ========================================
+   問題
+======================================== */
+
+.mission-title {
+
+    font-size: 14px;
+
+    font-weight: 900;
+
+    color: #6378a0;
+
+    letter-spacing:
+        .08em;
+
+}
+
+
+.question {
+
+    font-size: 20px;
+
+    font-weight: 800;
+
+    line-height: 1.7;
+
+    margin:
+        15px 0 20px;
+
+}
+
+
+/* ========================================
+   点
+======================================== */
+
+.point-list {
+
+    display: flex;
+
+    flex-wrap: wrap;
+
+    gap: 10px;
+
+    margin-bottom: 18px;
+
+}
+
+
+.point-item {
+
+    padding:
+        8px 13px;
+
+    border-radius: 12px;
+
+    background:
+        #f3f6fc;
+
+    font-weight: 700;
+
+}
+
+
+.point-label {
+
+    color:
+        #df5967;
+
+    margin-right: 5px;
+
+}
+
+
+/* ========================================
+   式入力
+======================================== */
+
+.equation {
+
+    padding: 15px;
+
+    background:
+        #f4f7fc;
+
+    border-radius: 15px;
+
+    margin-bottom: 15px;
+
+    line-height: 2.5;
+
+}
+
+
+input {
+
+    width: 75px;
+
+    padding:
+        8px 10px;
+
+    border:
+        2px solid #dce4f2;
+
+    border-radius: 10px;
+
+    outline: none;
+
+    text-align: center;
+
+}
+
+
+input:focus {
+
+    border-color:
+        #7594e8;
+
+}
+
+
+/* ========================================
+   ボタン
+======================================== */
+
+.attack {
+
+    width: 100%;
+
+    border: 0;
+
+    border-radius: 15px;
+
+    padding: 15px;
+
+    background:
+        #4d73df;
+
+    color: white;
+
+    font-weight: 900;
+
+    font-size: 17px;
+
+}
+
+
+.hint {
+
+    width: 100%;
+
+    margin-top: 10px;
+
+    padding: 12px;
+
+    border: 0;
+
+    border-radius: 12px;
+
+    background:
+        #eef3ff;
+
+    color:
+        #526b9e;
+
+}
+
+
+/* ========================================
+   判定
+======================================== */
+
+.feedback {
+
+    min-height: 45px;
+
+    margin-top: 15px;
+
+    padding: 10px;
+
+    border-radius: 12px;
+
+    font-weight: 800;
+
+}
+
+
+.feedback.success {
+
+    background:
+        #e8f8ed;
+
+    color:
+        #27834a;
+
+}
+
+
+.feedback.error {
+
+    background:
+        #fff0f0;
+
+    color:
+        #c44949;
+
+}
+
+
+.hint-box {
+
+    display: none;
+
+    margin-top: 10px;
+
+    padding: 13px;
+
+    border-radius: 12px;
+
+    background:
+        #fff9e8;
+
+    color:
+        #795f20;
+
+}
+
+
+/* ========================================
+   CLEAR
+======================================== */
+
+.clear-screen {
+
+    min-height:
+        70vh;
+
+    display: flex;
+
+    align-items:
+        center;
+
+    justify-content:
+        center;
+
+    text-align:
+        center;
+
+}
+
+
+.clear-box {
+
+    background:
+        white;
+
+    border-radius:
+        30px;
+
+    padding:
+        45px 35px;
+
+    width:
+        min(
+            500px,
+            100%
+        );
+
+    box-shadow:
+        0 15px 50px
+        rgba(
+            60,
+            80,
+            120,
+            .15
+        );
+
+}
+
+
+.clear-title {
+
+    font-size:
+        48px;
+
+    font-weight:
+        1000;
+
+}
+
+
+.clear-stage {
+
+    color:
+        #71809b;
+
+    margin:
+        10px 0 25px;
+
+}
+
+
+.reward {
+
+    font-size:
+        22px;
+
+    font-weight:
+        900;
+
+    margin-bottom:
+        25px;
+
+}
+
+
+.next-button {
+
+    width:
+        100%;
+
+    border:
+        0;
+
+    border-radius:
+        15px;
+
+    padding:
+        15px;
+
+    background:
+        #4d73df;
+
+    color:
+        white;
+
+    font-weight:
+        900;
+
+    font-size:
+        17px;
+
+}
+
+
+.stage-button {
+
+    width:
+        100%;
+
+    margin-top:
+        10px;
+
+    border:
+        0;
+
+    border-radius:
+        15px;
+
+    padding:
+        13px;
+
+    background:
+        #eef3ff;
+
+    color:
+        #526b9e;
+
+    font-weight:
+        800;
+
+}
+
+
+/* ========================================
+   スマホ
+======================================== */
+
+@media (
+    max-width: 800px
+) {
+
+    .game-layout {
+
+        grid-template-columns:
+            1fr;
+
+    }
+
+
+    .title {
+
+        font-size:
+            30px;
+
+    }
+
+
+    .game-title {
+
+        font-size:
+            24px;
+
+    }
+
+}
+
+.clear-animation {
+
+    animation:
+        clearPop .45s
+        ease-out;
+
+}
+
+
+@keyframes clearPop {
+
+    0% {
+
+        transform:
+            scale(.75);
+
+        opacity: 0;
+
+    }
+
+    70% {
+
+        transform:
+            scale(1.05);
+
+    }
+
+    100% {
+
+        transform:
+            scale(1);
+
+        opacity: 1;
+
+    }
+
+}
+
+/* =====================================================
+   FUNCTION MAP
+===================================================== */
+
+.stage-map {
+
+    min-height: 100vh;
+
+    padding: 30px 20px 60px;
+
+    max-width: 900px;
+
+    margin: 0 auto;
+
+}
+
+
+.map-header {
+
+    position: relative;
+
+    text-align: center;
+
+    margin-bottom: 45px;
+
+}
+
+
+.map-title {
+
+    font-size: 38px;
+
+    font-weight: 900;
+
+}
+
+
+.map-subtitle {
+
+    margin-top: 8px;
+
+    color: #71809b;
+
+}
+
+
+.map-score {
+
+    position: absolute;
+
+    right: 0;
+    top: 0;
+
+    padding: 8px 14px;
+
+    border-radius: 20px;
+
+    background: #fff;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.08);
+
+    font-weight: bold;
+
+}
+
+
+/* -----------------------------------------
+   AREA
+----------------------------------------- */
+
+.area-section {
+
+    margin-bottom: 45px;
+
+}
+
+
+.area-title {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 15px;
+
+    margin-bottom: 18px;
+
+}
+
+
+.area-title > span {
+
+    font-size: 38px;
+
+}
+
+
+.area-title h2 {
+
+    margin: 0;
+
+    font-size: 25px;
+
+}
+
+
+.area-title p {
+
+    margin: 3px 0 0;
+
+    color: #7b879c;
+
+    font-size: 14px;
+
+}
+
+
+/* -----------------------------------------
+   STAGE
+----------------------------------------- */
+
+.stage-map-list {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+.stage-node {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 15px;
+
+    border-radius: 18px;
+
+    background: white;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,.07);
+
+    transition:
+        transform .15s,
+        box-shadow .15s;
+
+}
+
+
+.stage-node.available:hover {
+
+    transform:
+        translateY(-2px);
+
+    box-shadow:
+        0 8px 22px
+        rgba(0,0,0,.12);
+
+}
+
+
+.stage-number {
+
+    width: 48px;
+
+    height: 48px;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #edf2ff;
+
+    color: #4d73df;
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+    flex-shrink: 0;
+
+}
+
+
+.stage-info {
+
+    flex: 1;
+
+}
+
+
+.stage-name {
+
+    font-size: 17px;
+
+    font-weight: bold;
+
+}
+
+
+.stage-description {
+
+    margin-top: 4px;
+
+    color: #78869d;
+
+    font-size: 13px;
+
+}
+
+
+.stage-difficulty {
+
+    margin-top: 6px;
+
+    color: #f0b429;
+
+    letter-spacing: 2px;
+
+    font-size: 12px;
+
+}
+
+
+.stage-action button {
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 10px 17px;
+
+    background: #4d73df;
+
+    color: white;
+
+    font-weight: bold;
+
+    cursor: pointer;
+
+}
+
+
+.stage-node.cleared .stage-number {
+    background: #e5f7ec;
+    color: #35a85a;
+}
+
+.stage-node.locked .stage-number {
+    background: #edf0f4;
+    color: #8893a3;
+}
+
+.stage-node.locked {
+
+    opacity: .5;
+
+}
+
+
+.stage-node.locked
+.stage-number {
+
+    background: #edf0f4;
+
+    color: #8893a3;
+
+}
+
+
+.locked-icon {
+
+    font-size: 24px;
+
+}
+
+
+.map-back {
+
+    display: block;
+
+    margin: 30px auto 0;
+
+    border: none;
+
+    background: transparent;
+
+    color: #748199;
+
+    cursor: pointer;
+
+}
+
+
+/* -----------------------------------------
+   スマホ
+----------------------------------------- */
+
+@media (
+    max-width: 600px
+) {
+
+    .stage-map {
+
+        padding:
+            20px 12px 40px;
+
+    }
+
+
+    .map-title {
+
+        font-size: 30px;
+
+    }
+
+
+    .map-score {
+
+        position: static;
+
+        display: inline-block;
+
+        margin-top: 12px;
+
+    }
+
+
+    .stage-node {
+
+        padding: 12px;
+
+    }
+
+
+    .stage-number {
+
+        width: 42px;
+
+        height: 42px;
+
+    }
+
+
+    .stage-description {
+
+        font-size: 12px;
+
+    }
+
+
+    .stage-action button {
+
+        padding:
+            9px 12px;
+
+    }
+
+}
+
+/* =====================================================
+   MAP PATH
+===================================================== */
+
+.map-path {
+
+    position: relative;
+
+    display: flex;
+
+    flex-direction: column;
+
+    align-items: center;
+
+}
+
+
+/* -----------------------------------------
+   ステージ
+----------------------------------------- */
+
+.map-stage-wrapper {
+
+    position: relative;
+
+    width: 100%;
+
+    max-width: 700px;
+
+}
+
+
+.map-stage {
+
+    position: relative;
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 16px;
+
+    padding: 16px 20px;
+
+    min-height: 72px;
+
+    background: white;
+
+    border-radius: 22px;
+
+    box-shadow:
+        0 5px 18px
+        rgba(0,0,0,.07);
+
+    z-index: 2;
+
+    transition:
+        transform .15s,
+        box-shadow .15s;
+
+}
+
+
+/* -----------------------------------------
+   現在挑戦できるステージ
+----------------------------------------- */
+
+.map-stage.available {
+
+    border:
+        2px solid #4d73df;
+
+    box-shadow:
+        0 7px 25px
+        rgba(77,115,223,.20);
+
+    animation:
+        stagePulse 2s
+        ease-in-out infinite;
+
+}
+
+
+@keyframes stagePulse {
+
+    0%,
+    100% {
+
+        box-shadow:
+            0 7px 25px
+            rgba(77,115,223,.18);
+
+    }
+
+    50% {
+
+        box-shadow:
+            0 9px 32px
+            rgba(77,115,223,.35);
+
+    }
+
+}
+
+
+/* -----------------------------------------
+   クリア済み
+----------------------------------------- */
+
+.map-stage.cleared {
+
+    border:
+        2px solid #65c981;
+
+}
+
+
+/* -----------------------------------------
+   ロック
+----------------------------------------- */
+
+.map-stage.locked {
+
+    opacity: .48;
+
+}
+
+
+/* -----------------------------------------
+   番号
+----------------------------------------- */
+
+.map-stage-number {
+
+    width: 48px;
+
+    height: 48px;
+
+    flex-shrink: 0;
+
+    border-radius: 50%;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    background: #edf2ff;
+
+    color: #4d73df;
+
+    font-weight: 900;
+
+    font-size: 20px;
+
+}
+
+
+.map-stage.cleared .map-stage-number {
+    background: #e5f7ec;
+    color: #35a85a;
+}
+
+/* -----------------------------------------
+   情報
+----------------------------------------- */
+
+.map-stage-info {
+
+    flex: 1;
+
+    min-width: 0;
+
+}
+
+
+.map-stage-name {
+
+    font-size: 17px;
+
+    font-weight: 800;
+
+}
+
+
+.map-stage-description {
+
+    margin-top: 4px;
+
+    font-size: 13px;
+
+    color: #7b879c;
+
+}
+
+
+.map-stage-stars {
+
+    margin-top: 5px;
+
+    color: #f0b429;
+
+    font-size: 11px;
+
+    letter-spacing: 2px;
+
+}
+
+
+/* -----------------------------------------
+   STARTボタン
+----------------------------------------- */
+
+.map-stage-action button {
+
+    border: none;
+
+    border-radius: 12px;
+
+    padding: 10px 16px;
+
+    background: #4d73df;
+
+    color: white;
+
+    font-weight: 800;
+
+    cursor: pointer;
+
+}
+
+
+.map-stage.cleared
+.map-stage-action button {
+
+    background: #55b871;
+
+}
+
+
+.map-lock {
+
+    font-size: 25px;
+
+}
+
+
+/* -----------------------------------------
+   ステージ間の道
+----------------------------------------- */
+
+.path-line {
+
+    width: 6px;
+
+    height: 28px;
+
+    margin: 0 auto;
+
+    background: #d8deea;
+
+    border-radius: 10px;
+
+    position: relative;
+
+    z-index: 1;
+
+}
+
+
+.path-line.path-cleared {
+
+    background: #65c981;
+
+}
+
+
+/* -----------------------------------------
+   スマホ
+----------------------------------------- */
+
+@media (
+    max-width: 600px
+) {
+
+    .map-stage {
+
+        padding:
+            12px;
+
+        gap: 10px;
+
+    }
+
+
+    .map-stage-number {
+
+        width: 42px;
+
+        height: 42px;
+
+        font-size: 17px;
+
+    }
+
+
+    .map-stage-name {
+
+        font-size: 15px;
+
+    }
+
+
+    .map-stage-description {
+
+        font-size: 11px;
+
+    }
+
+
+    .map-stage-action button {
+
+        padding:
+            8px 10px;
+
+        font-size: 11px;
+
+    }
+
+}
+
+/* =====================================================
+   TITLE SCREEN
+===================================================== */
+
+.title-screen {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    text-align: center;
+
+    padding: 30px;
+
+}
+
+
+.title-content {
+
+    width: 100%;
+
+    max-width: 500px;
+
+}
+
+
+.title-icon {
+
+    font-size: 75px;
+
+    margin-bottom: 10px;
+
+}
+
+
+.game-title {
+
+    margin: 0;
+
+    font-size: 52px;
+
+    font-weight: 900;
+
+    letter-spacing: 5px;
+
+}
+
+
+.game-title-jp {
+
+    margin: 5px 0 12px;
+
+    font-size: 30px;
+
+}
+
+
+.game-subtitle {
+
+    margin-bottom: 40px;
+
+    color: #71809b;
+
+}
+
+
+/* -----------------------------------------
+   メニュー
+----------------------------------------- */
+
+.title-menu {
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 12px;
+
+}
+
+
+.title-start-button {
+
+    border: none;
+
+    border-radius: 18px;
+
+    padding: 18px;
+
+    background: #4d73df;
+
+    color: white;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 8px 20px
+        rgba(77,115,223,.25);
+
+}
+
+
+.title-start-button:hover {
+
+    transform:
+        translateY(-2px);
+
+}
+
+
+.title-sub-button {
+
+    border: none;
+
+    border-radius: 15px;
+
+    padding: 13px 20px;
+
+    background: white;
+
+    color: #53627a;
+
+    font-weight: 700;
+
+    cursor: pointer;
+
+    box-shadow:
+        0 4px 15px
+        rgba(0,0,0,.07);
+
+}
+
+
+.title-score {
+
+    margin-top: 30px;
+
+    color: #71809b;
+
+    font-weight: bold;
+
+}
+
+
+/* =====================================================
+   HOW TO PLAY
+===================================================== */
+
+.howto-screen {
+
+    min-height: 100vh;
+
+    display: flex;
+
+    align-items: center;
+
+    justify-content: center;
+
+    padding: 20px;
+
+}
+
+
+.howto-box {
+
+    width: 100%;
+
+    max-width: 650px;
+
+    padding: 30px;
+
+    border-radius: 25px;
+
+    background: white;
+
+    box-shadow:
+        0 10px 35px
+        rgba(0,0,0,.08);
+
+}
+
+
+.howto-box h1 {
+
+    margin-top: 0;
+
+    text-align: center;
+
+}
+
+
+.howto-step {
+
+    display: flex;
+
+    gap: 15px;
+
+    padding: 15px 0;
+
+    border-bottom:
+        1px solid #edf0f5;
+
+}
+
+
+.howto-step > span {
+
+    font-size: 25px;
+
+    font-weight: 900;
+
+}
+
+
+.howto-step b {
+
+    font-size: 17px;
+
+}
+
+
+.howto-step p {
+
+    margin:
+        5px 0 0;
+
+    color: #71809b;
+
+    font-size: 14px;
+
+}
+
+/* =====================================================
+   PLAYER STATUS
+===================================================== */
+
+.player-status {
+
+    margin-top: 30px;
+
+}
+
+
+.player-level {
+
+    font-size: 20px;
+
+    font-weight: 900;
+
+}
+
+
+.exp-bar {
+
+    width: 100%;
+
+    height: 10px;
+
+    margin-top: 8px;
+
+    background: #e7ebf2;
+
+    border-radius: 10px;
+
+    overflow: hidden;
+
+}
+
+
+.exp-fill {
+
+    height: 100%;
+
+    background: #4d73df;
+
+    border-radius: 10px;
+
+    transition:
+        width .4s ease;
+
+}
+
+
+.exp-text {
+
+    margin-top: 5px;
+
+    font-size: 12px;
+
+    color: #7b879c;
+
+}
+
+
+.exp-reward {
+
+    margin-top: 10px;
+
+    font-size: 18px;
+
+    font-weight: 900;
+
+}
+
+.title-danger-button {
+
+    margin-top: 12px;
+
+    border: none;
+
+    background: transparent;
+
+    color: #a0a8b5;
+
+    font-size: 12px;
+
+    cursor: pointer;
+
+}
+
+
+.title-danger-button:hover {
+
+    color: #d65a5a;
+
+}
+
+</style>
+
+<script src="stages3.js"></script>
+
+<script>
+
+/* =====================================================
+   STAGE DATA
+
+   ★ ステージを増やすときは
+     基本的にここへ追加するだけ
+===================================================== */
+
+
+/* =====================================================
+   PROBLEM GENERATOR
+===================================================== */
+
+
+/* =====================================================
+   ランダム整数
+===================================================== */
+
+function randomInt(min, max) {
+
+    return Math.floor(
+        Math.random() *
+        (max - min + 1)
+    ) + min;
+
+}
+
+
+/* =====================================================
+   一次関数問題を生成
+===================================================== */
+
+function generateLinearProblem(config) {
+
+    const isProportional =
+        config.form === "y = ax";
+
+
+    const problemType =
+        config.problemType || "twoPoints";
+
+
+    /* =========================
+       a
+    ========================= */
+
+    let a =
+        config.a ??
+        randomInt(
+            config.minA ?? -4,
+            config.maxA ?? 4
+        );
+
+
+    /* a = 0 を避ける */
+
+    while (a === 0) {
+
+        a =
+            randomInt(
+                config.minA ?? -4,
+                config.maxA ?? 4
+            );
+
+    }
+
+
+    /* =========================
+       b
+    ========================= */
+
+    const b =
+        isProportional
+            ? 0
+            : (
+                config.b ??
+                randomInt(
+                    config.minB ?? -5,
+                    config.maxB ?? 5
+                )
+            );
+
+
+    /* =========================
+       x座標
+    ========================= */
+
+    const x1 =
+        config.x1 ??
+        randomInt(-4, -1);
+
+
+    let x2 =
+        config.x2 ??
+        randomInt(1, 4);
+
+
+    while (x2 === x1) {
+
+        x2 =
+            randomInt(1, 4);
+
+    }
+
+
+    /* =========================
+       y座標
+    ========================= */
+
+    const y1 =
+        a * x1 + b;
+
+
+    const y2 =
+        a * x2 + b;
+
+
+    
+    /* =========================
+    xからyを求める
+    ========================= */
+
+    if (
+        problemType === "findY"
+    ) {
+
+        const targetX =
+            config.targetX ??
+            randomInt(-4, 4);
+
+
+        const targetY =
+            a * targetX + b;
+
+
+        return {
+
+            type:
+                "linear",
+
+            form:
+                isProportional
+                    ? "y = ax"
+                    : "y = ax + b",
+
+            problemType:
+                "findY",
+
+            givenA:
+                a,
+
+            givenB:
+                b,
+
+            targetX:
+                targetX,
+
+            answer: {
+
+                y:
+                    targetY
+
+            }
+
+        };
+
+    }
+
+    /* =========================
+    yからxを求める
+    ========================= */
+
+    if (
+        problemType === "findX"
+    ) {
+
+        const targetY =
+            config.targetY ??
+            randomInt(-5, 10);
+
+        const targetX =
+            (targetY - b) / a;
+
+
+        return {
+
+            type:
+                "linear",
+
+            form:
+                isProportional
+                    ? "y = ax"
+                    : "y = ax + b",
+
+            problemType:
+                "findX",
+
+            givenA:
+                a,
+
+            givenB:
+                b,
+
+            targetY:
+                targetY,
+
+            answer: {
+
+                x:
+                    targetX
+
+            }
+
+        };
+
+    }
+
+    /* =========================
+    bを求める
+    ========================= */
+
+    if (
+        problemType === "findB"
+    ) {
+
+        return {
+
+            type:
+                "linear",
+
+            form:
+                "y = ax + b",
+
+            problemType:
+                "findB",
+
+            points: [
+
+                {
+                    x: x1,
+                    y: y1,
+                    label: "A"
+                }
+
+            ],
+
+            givenA:
+                a,
+
+            answer: {
+
+                b:
+                    b
+
+            }
+
+        };
+
+    }
+    /* =========================
+       1点からaを求める
+    ========================= */
+
+    if (
+        problemType === "findA"
+    ) {
+
+        return {
+
+            type:
+                "linear",
+
+            form:
+                isProportional
+                    ? "y = ax"
+                    : "y = ax + b",
+
+            problemType:
+                "findA",
+
+            points: [
+
+                {
+                    x: x1,
+                    y: y1,
+                    label: "A"
+                }
+
+            ],
+
+           answer: {
+
+                a:
+                   a
+
+            },
+
+            givenB:
+                b
+        };
+
+    }
+
+
+    /* =========================
+       2点から求める
+    ========================= */
+
+    return {
+
+        type:
+            "linear",
+
+        form:
+            isProportional
+                ? "y = ax"
+                : "y = ax + b",
+
+        problemType:
+            "twoPoints",
+
+        points: [
+
+            {
+                x: x1,
+                y: y1,
+                label: "A"
+            },
+
+            {
+                x: x2,
+                y: y2,
+                label: "B"
+            }
+
+        ],
+
+        answer:
+            isProportional
+
+                ? {
+                    a:
+                        a
+                }
+
+                : {
+                    a:
+                        a,
+
+                    b:
+                        b
+                }
+
+    };
+
+}
+/* =====================================================
+   二次関数問題を生成
+===================================================== */
+
+function generateQuadraticProblem(
+    config
+) {
+
+    const a =
+        config.a ??
+        randomInt(
+            config.minA ?? 1,
+            config.maxA ?? 3
+        );
+
+
+    /*
+       x座標
+    */
+
+    const x1 =
+        config.x1 ??
+        randomInt(
+            -3,
+            -1
+        );
+
+
+    const x2 =
+        config.x2 ??
+        0;
+
+
+    const x3 =
+        config.x3 ??
+        randomInt(
+            1,
+            3
+        );
+
+
+    /*
+       y=ax²
+    */
+
+    const y1 =
+        a * x1 * x1;
+
+
+    const y2 =
+        a * x2 * x2;
+
+
+    const y3 =
+        a * x3 * x3;
+
+
+    return {
+
+        type:
+            "quadratic",
+
+        form:
+            "y = ax²",
+
+        points: [
+
+            {
+                x: x1,
+                y: y1,
+                label: "A"
+            },
+
+            {
+                x: x2,
+                y: y2,
+                label: "B"
+            },
+
+            {
+                x: x3,
+                y: y3,
+                label: "C"
+            }
+
+        ],
+
+        answer: {
+
+            a: a
+
+        }
+
+    };
+
+}
+
+
+/* =====================================================
+   ステージ設定から問題を作る
+===================================================== */
+
+function createProblem(
+    stage
+) {
+
+    if (
+        stage.generator ===
+        "linear"
+    ) {
+
+        return generateLinearProblem(
+            stage
+        );
+
+    }
+
+
+    if (
+        stage.generator ===
+        "quadratic"
+    ) {
+
+        return generateQuadraticProblem(
+            stage
+        );
+
+    }
+
+
+    /*
+       generatorがない場合は
+       ステージに書かれている
+       固定問題をそのまま使用
+    */
+
+    return {
+
+        type:
+            stage.type,
+
+        form:
+            stage.form,
+
+        points:
+            stage.points,
+
+        answer:
+            stage.answer
+
+    };
+
+}
+
+</script>
+
+</head>
+
+
+<body>
+
+<div id="app"></div>
+
+
+<script>
+
+/* =====================================================
+   GAME STATE
+
+   ※ここで先に全部の変数を用意する
+   ※showStageSelect()はまだ呼ばない
+===================================================== */
+
+let currentStage = null;
+
+let currentStageIndex = 0;
+
+let combo = 0;
+
+let score = 0;
+
+let playerExp = 0;
+
+let playerLevel = 1;
+
+let clearData = [];
+
+
+/* =====================================================
+   SAVE SYSTEM
+===================================================== */
+
+const SAVE_KEY = "function_game_save_v1";
+
+
+function getSaveData() {
+
+    try {
+
+        const data =
+            localStorage.getItem(
+                SAVE_KEY
+            );
+
+        if (!data) {
+
+            return {
+                cleared: [],
+                score: 0,
+                exp: 0,
+                level: 1
+            };
+
+        }
+
+
+        const save =
+            JSON.parse(data);
+
+
+        return {
+
+            cleared:
+                Array.isArray(save.cleared)
+                ? save.cleared
+                : [],
+
+            score:
+                Number(save.score) || 0,
+
+            exp:
+                Number(save.exp) || 0,
+
+            level:
+                Number(save.level) || 1
+
+        };
+
+    } catch (error) {
+
+        console.error(
+            "セーブデータを読み込めませんでした。",
+            error
+        );
+
+
+        return {
+            cleared: [],
+            score: 0,
+            exp: 0,
+            level: 1
+        };
+
+    }
+
+}
+
+
+function saveGame() {
+
+    try {
+
+        localStorage.setItem(
+
+            SAVE_KEY,
+
+            JSON.stringify({
+
+                cleared:
+                    clearData,
+
+                score:
+                    score,
+
+                exp:
+                    playerExp,
+
+                level:
+                    playerLevel
+
+            })
+
+        );
+
+    } catch (error) {
+
+        console.error(
+            "セーブできませんでした。",
+            error
+        );
+
+    }
+
+}
+
+function loadGame() {
+
+    const save =
+        getSaveData();
+
+
+    clearData =
+        save.cleared;
+
+    score =
+        save.score;
+
+    playerExp =
+        save.exp;
+
+    playerLevel =
+        save.level;
+
+}
+/* =====================================================
+   ここまでが初期化
+   Part 2以降をこの下につなげる
+===================================================== */
+/* =====================================================
+   STAGE SELECT
+===================================================== */
+
+/* =====================================================
+   STAGE SELECT
+   関数攻略マップ
+===================================================== */
+
+function showStageSelect() {
+
+    const app =
+        document.getElementById("app");
+
+    if (!app) return;
+
+
+    const areas = {};
+
+
+    stages.forEach(stage => {
+
+        const area =
+            stage.area || "関数攻略";
+
+        if (!areas[area]) {
+            areas[area] = [];
+        }
+
+        areas[area].push(stage);
+
+    });
+
+
+    let html = `
+
+        <main class="stage-map">
+
+            <header class="map-header">
+
+                <div class="map-title">
+                    📈 関数攻略
+                </div>
+
+                <div class="map-subtitle">
+                    グラフを制覇して関数マスターを目指せ！
+                </div>
+
+                <div class="map-score">
+                    ⭐ ${score}
+                </div>
+
+            </header>
+
+    `;
+
+
+    Object.keys(areas).forEach(
+        (areaName, areaIndex) => {
+
+            const areaStages =
+                areas[areaName];
+
+
+            html += `
+
+                <section class="area-section">
+
+                    <div class="area-title">
+
+                        <span>
+                            ${
+                                areaIndex === 0
+                                ? "🌱"
+                                : areaIndex === 1
+                                ? "🔧"
+                                : areaIndex === 2
+                                ? "🚀"
+                                : areaIndex === 3
+                                ? "⚔️"
+                                : "👑"
+                            }
+                        </span>
+
+                        <div>
+
+                            <h2>
+                                ${areaName}
+                            </h2>
+
+                            <p>
+                                ${
+                                    getAreaDescription(
+                                        areaIndex
+                                    )
+                                }
+                            </p>
+
+                        </div>
+
+                    </div>
+
+
+                    <div class="map-path">
+
+            `;
+
+
+            areaStages.forEach(
+                (stage, index) => {
+
+                    const cleared =
+                        isStageCleared(
+                            stage.id
+                        );
+
+                    const unlocked =
+                        isStageUnlocked(
+                            stage.id
+                        );
+
+
+                    let state =
+                        "locked";
+
+
+                    if (cleared) {
+
+                        state =
+                            "cleared";
+
+                    } else if (unlocked) {
+
+                        state =
+                            "available";
+
+                    }
+
+
+                    html += `
+
+                        <div class="map-stage-wrapper">
+
+                            ${
+                                index > 0
+                                ? `
+                                    <div class="
+                                        path-line
+                                        ${
+                                            isStageCleared(
+                                                areaStages[
+                                                    index - 1
+                                                ].id
+                                            )
+                                            ? "path-cleared"
+                                            : ""
+                                        }
+                                    "></div>
+                                `
+                                : ""
+                            }
+
+
+                            <div
+                                class="
+                                    map-stage
+                                    ${state}
+                                "
+                            >
+
+                                <div
+                                    class="map-stage-number"
+                                >
+
+                                    ${
+                                        cleared
+                                        ? "✓"
+                                        : stage.id
+                                    }
+
+                                </div>
+
+
+                                <div
+                                    class="map-stage-info"
+                                >
+
+                                    <div
+                                        class="map-stage-name"
+                                    >
+
+                                        ${stage.name}
+
+                                    </div>
+
+
+                                    <div
+                                        class="map-stage-description"
+                                    >
+
+                                        ${
+                                            stage.description ||
+                                            "グラフを完成させよう！"
+                                        }
+
+                                    </div>
+
+
+                                    <div
+                                        class="map-stage-stars"
+                                    >
+
+                                        ${
+                                            getDifficulty(
+                                                stage.difficulty
+                                            )
+                                        }
+
+                                    </div>
+
+                                </div>
+
+
+                                <div
+                                    class="map-stage-action"
+                                >
+
+                                    ${
+                                        state ===
+                                        "locked"
+
+                                        ? `
+
+                                            <div
+                                                class="
+                                                    map-lock
+                                                "
+                                            >
+
+                                                🔒
+
+                                            </div>
+
+                                        `
+
+                                        : `
+
+                                            <button
+                                                onclick="
+                                                    selectStage(
+                                                        ${stage.id}
+                                                    )
+                                                "
+                                            >
+
+                                                ${
+                                                    cleared
+                                                    ? "PLAY AGAIN"
+                                                    : "START"
+                                                }
+
+                                            </button>
+
+                                        `
+                                    }
+
+                                </div>
+
+                            </div>
+
+                        </div>
+
+                    `;
+
+                }
+            );
+
+
+            html += `
+
+                    </div>
+
+                </section>
+
+            `;
+
+        }
+    );
+
+
+    html += `
+
+            <button
+                class="map-back"
+                onclick="showTitle()"
+            >
+
+                ← タイトルへ
+
+            </button>
+
+        </main>
+
+    `;
+
+
+    app.innerHTML =
+        html;
+
+}
+
+/* =====================================================
+   エリア説明
+===================================================== */
+
+function getAreaDescription(
+    index
+) {
+
+    const descriptions = [
+
+        "関数の基本を身につけよう",
+
+        "一次関数を使いこなせ！",
+
+        "放物線の謎を解け！",
+
+        "複雑なグラフに挑戦！",
+
+        "関数のすべてを使って突破せよ！"
+
+    ];
+
+
+    return (
+        descriptions[index] ||
+        "関数の問題に挑戦しよう！"
+    );
+
+}
+
+
+/* =====================================================
+   難易度表示
+===================================================== */
+
+function getDifficulty(
+    difficulty
+) {
+
+    const d =
+        Number(difficulty) || 1;
+
+
+    return (
+        "★".repeat(
+            Math.min(d, 5)
+        ) +
+        "☆".repeat(
+            Math.max(
+                0,
+                5 - d
+            )
+        )
+    );
+
+}
+
+/* =====================================================
+   STAGE SELECT → GAME
+===================================================== */
+
+function selectStage(id) {
+
+    const index =
+        stages.findIndex(
+            stage =>
+                stage.id === id
+        );
+
+    if (index === -1) return;
+
+    if (!isStageUnlocked(index)) {
+        return;
+    }
+
+    currentStageIndex =
+        index;
+
+    currentStage =
+        stages[index];
+
+    startStage(
+        currentStage
+    );
+
+}
+
+
+/* =====================================================
+   START STAGE
+===================================================== */
+
+function startStage(stage) {
+
+    /*
+       問題生成
+    */
+
+    const problem =
+        generateProblem(stage);
+
+    /*
+       ステージ情報と
+       今回の問題を合体
+    */
+
+    currentStage = {
+
+        ...stage,
+
+        ...problem
+
+    };
+
+    stage =
+        currentStage;
+    
+    let questionText =
+        stage.description || "";
+
+
+    if (
+        stage.problemType === "findA"
+    ) {
+
+        if (
+            stage.form === "y = ax"
+        ) {
+
+            questionText =
+                "点Aから比例定数aを求めよう。";
+
+        } else {
+
+            questionText =
+                `点Aを通り、切片b = ${stage.givenB} の
+                一次関数の傾きaを求めよう。`;
+
+        }
+
+    }
+
+
+    if (
+        stage.problemType === "findB"
+    ) {
+
+        questionText =
+            `点A(${stage.points[0].x}, ${stage.points[0].y})を通り、
+            傾きa = ${stage.givenA} の一次関数の切片bを求めよう。`;
+
+    }
+
+
+    
+    const app =
+        document.getElementById("app");
+
+    app.innerHTML = `
+
+        <main class="screen">
+
+            <button
+                class="back"
+                onclick="showStageSelect()"
+            >
+                ← ステージ選択
+            </button>
+
+
+            <div class="game-top">
+
+                <div>
+
+                    <div class="game-stage">
+
+                        ${stage.area}
+                        /
+                        STAGE ${stage.id}
+
+                    </div>
+
+                    <div class="game-title">
+
+                        ${stage.name}
+
+                    </div>
+
+                </div>
+
+
+                <div class="combo">
+
+                    🔥 COMBO ×${combo}
+
+                </div>
+
+            </div>
+
+
+            <div class="game-layout">
+
+
+                <!-- ==========================
+                     GRAPH
+                =========================== -->
+
+                <section class="card">
+
+                    <canvas
+                        id="graphCanvas"
+                        width="700"
+                        height="500"
+                    ></canvas>
+
+                </section>
+
+
+                <!-- ==========================
+                     MISSION
+                =========================== -->
+
+                <section class="card">
+
+                    <div class="mission-title">
+
+                        MISSION
+
+                    </div>
+
+
+                    <div class="question">
+
+                        ${questionText}
+
+                    </div>
+
+
+                    <!-- ======================
+                         POINTS
+                    ======================= -->
+
+                    <div class="point-list">
+
+                        ${
+                            stage.problemType === "findX" ||
+                            stage.problemType === "findY"
+
+                                ? ""
+
+                                : stage.points
+                                    .map(
+                                        point => `
+
+                                            <div
+                                                class="point-item"
+                                            >
+
+                                                <span
+                                                    class="point-label"
+                                                >
+
+                                                    ${point.label}
+
+                                                </span>
+
+                                                (
+                                                ${point.x},
+                                                ${point.y}
+                                                )
+
+                                            </div>
+
+                                        `
+                                    )
+                                    .join("")
+                        }
+
+                    </div>
+
+
+                    <!-- ======================
+                         INPUT
+                    ======================= -->
+
+                    <div
+                        id="inputArea"
+                    ></div>
+
+
+                    <!-- ======================
+                         ANSWER
+                    ======================= -->
+
+                    <button
+                        class="attack"
+                        onclick="checkAnswer()"
+                    >
+
+                        ⚔️ ANSWER
+
+                    </button>
+
+
+                    <button
+                        class="hint"
+                        onclick="showHint()"
+                    >
+
+                        💡 ヒント
+
+                    </button>
+
+
+                    <div
+                        id="feedback"
+                        class="feedback"
+                    ></div>
+
+
+                    <div
+                        id="hintBox"
+                        class="hint-box"
+                    ></div>
+
+                </section>
+
+            </div>
+
+        </main>
+
+    `;
+
+
+    createInputs(stage);
+
+    drawGraph(stage);
+
+}
+
+/* =====================================================
+   FUNCTION INPUT UI
+===================================================== */
+
+function getFunctionInputHTML(stage) {
+
+    /* -------------------------
+       比例 y = ax
+    ------------------------- */
+
+    if (stage.form === "y = ax") {
+
+        return `
+
+            <div class="equation-input">
+
+                <span>y =</span>
+
+                <input
+                    id="answerA"
+                    type="number"
+                    step="any"
+                    placeholder="a"
+                >
+
+                <span>x</span>
+
+            </div>
+
+        `;
+    }
+
+
+    /* -------------------------
+       一次関数 y = ax + b
+    ------------------------- */
+
+    if (stage.form === "y = ax + b") {
+
+        return `
+
+            <div class="equation-input">
+
+                <span>y =</span>
+
+                <input
+                    id="answerA"
+                    type="number"
+                    step="any"
+                    placeholder="a"
+                >
+
+                <span>x +</span>
+
+                <input
+                    id="answerB"
+                    type="number"
+                    step="any"
+                    placeholder="b"
+                >
+
+            </div>
+
+        `;
+    }
+
+
+    /* -------------------------
+       二次関数 y = ax²
+    ------------------------- */
+
+    if (stage.form === "y = ax²") {
+
+        return `
+
+            <div class="equation-input">
+
+                <span>y =</span>
+
+                <input
+                    id="answerA"
+                    type="number"
+                    step="any"
+                    placeholder="a"
+                >
+
+                <span>x²</span>
+
+            </div>
+
+        `;
+    }
+
+
+    return "";
+
+}
+
+function getEquationText(stage) {
+
+    if (
+        stage.form === "y = ax"
+    ) {
+
+        return `y = ${stage.givenA}x`;
+
+    }
+
+
+    if (
+        stage.form === "y = ax + b"
+    ) {
+
+        const a =
+            stage.givenA;
+
+        const b =
+            stage.givenB;
+
+
+        if (b === 0) {
+
+            return `y = ${a}x`;
+
+        }
+
+
+        return (
+            `y = ${a}x ` +
+            `${b > 0 ? "+" : "-"} ` +
+            `${Math.abs(b)}`
+        );
+
+    }
+
+
+    return stage.form;
+
+}
+
+/* =====================================================
+   CREATE INPUTS
+===================================================== */
+
+function createInputs(stage) {
+
+    const area =
+        document.getElementById(
+            "inputArea"
+        );
+
+    if (!area) return;
+
+
+    /* =========================
+       一次関数・比例
+    ========================= */
+
+    if (
+        stage.type === "linear"
+    ) {
+
+        /* =====================
+        yを求める
+        ===================== */
+
+        if (
+            stage.type === "linear" &&
+            stage.problemType === "findY"
+        ) {
+
+            area.innerHTML = `
+
+                <div class="equation">
+
+                    <b>
+                        ${getEquationText(stage)}
+                    </b>
+
+                    <br>
+
+                    x = ${stage.targetX}
+
+                    <br>
+
+                    y =
+
+                    <input
+                        id="answerY"
+                        type="number"
+                        step="any"
+                    >
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        /* =====================
+        xを求める
+        ===================== */
+
+        if (
+            stage.type === "linear" &&
+            stage.problemType === "findX"
+        ) {
+
+            area.innerHTML = `
+
+                <div class="equation">
+
+                    <b>
+                        ${getEquationText(stage)}
+                    </b>
+
+                    <br>
+
+                    y = ${stage.targetY}
+
+                    <br>
+
+                    x =
+
+                    <input
+                        id="answerX"
+                        type="number"
+                        step="any"
+                    >
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        /* =====================
+           比例 y = ax
+        ===================== */
+
+        if (
+            stage.form === "y = ax"
+        ) {
+
+            area.innerHTML = `
+
+                <div class="equation">
+
+                    <b>
+                        ${stage.form}
+                    </b>
+
+                    <br>
+
+                    a =
+
+                    <input
+                        id="answerA"
+                        type="number"
+                        step="any"
+                        oninput="previewGraph()"
+                    >
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+        
+
+
+        /* =====================
+           aを求める
+        ===================== */
+
+        if (
+            stage.problemType === "findA"
+        ) {
+
+            area.innerHTML = `
+
+                <div class="equation">
+
+                    <b>
+                        ${stage.form}
+                    </b>
+
+                    <br>
+
+                    a =
+
+                    <input
+                        id="answerA"
+                        type="number"
+                        step="any"
+                        oninput="previewGraph()"
+                    >
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /* =====================
+           bを求める
+        ===================== */
+
+        if (
+            stage.problemType === "findB"
+        ) {
+
+            area.innerHTML = `
+
+                <div class="equation">
+
+                    <b>
+                        ${stage.form}
+                    </b>
+
+                    <br>
+
+                    b =
+
+                    <input
+                        id="answerB"
+                        type="number"
+                        step="any"
+                        oninput="previewGraph()"
+                    >
+
+                </div>
+
+            `;
+
+            return;
+
+        }
+
+
+        /* =====================
+           2点から求める
+        ===================== */
+
+        area.innerHTML = `
+
+            <div class="equation">
+
+                <b>
+                    ${stage.form}
+                </b>
+
+                <br>
+
+                a =
+
+                <input
+                    id="answerA"
+                    type="number"
+                    step="any"
+                    oninput="previewGraph()"
+                >
+
+                b =
+
+                <input
+                    id="answerB"
+                    type="number"
+                    step="any"
+                    oninput="previewGraph()"
+                >
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+
+    /* =========================
+       二次関数
+    ========================= */
+
+    if (
+        stage.type === "quadratic"
+    ) {
+
+        area.innerHTML = `
+
+            <div class="equation">
+
+                <b>
+                    ${stage.form}
+                </b>
+
+                <br>
+
+                a =
+
+                <input
+                    id="answerA"
+                    type="number"
+                    step="any"
+                    oninput="previewGraph()"
+                >
+
+            </div>
+
+        `;
+
+        return;
+
+    }
+
+}
+
+/* =====================================================
+   HINT
+===================================================== */
+
+function showHint() {
+
+    const box =
+        document.getElementById(
+            "hintBox"
+        );
+
+    if (!box) return;
+
+    box.style.display =
+        "block";
+
+    box.textContent =
+        "💡 " +
+        currentStage.hint;
+
+}
+
+
+/* =====================================================
+   SAVE SYSTEM
+===================================================== */
+
+function getClearData() {
+
+    return getSaveData().cleared;
+
+}
+
+
+function isStageCleared(stageId) {
+
+    const save =
+        getSaveData();
+
+
+    return save.cleared.includes(
+        stageId
+    );
+
+}
+
+function saveStageClear(stageId) {
+
+    try {
+
+        const save =
+            getSaveData();
+
+
+        /* クリア済みなら追加しない */
+
+        if (
+            !save.cleared.includes(stageId)
+        ) {
+
+            save.cleared.push(stageId);
+
+        }
+
+
+        /* 現在のスコア・EXPも保存 */
+
+        save.score =
+            score;
+
+        save.exp =
+            playerExp;
+
+        save.level =
+            playerLevel;
+
+
+        localStorage.setItem(
+
+            SAVE_KEY,
+
+            JSON.stringify(save)
+
+        );
+
+
+        /* 現在のメモリ上のデータも更新 */
+
+        clearData =
+            save.cleared;
+
+
+    } catch (error) {
+
+        console.error(
+            "ステージクリアの保存に失敗しました。",
+            error
+        );
+
+    }
+
+}
+
+function isStageUnlocked(stageId) {
+
+    /* -----------------------------------------
+       STAGE 1 は最初から解放
+    ----------------------------------------- */
+
+    if (stageId === stages[0].id) {
+        return true;
+    }
+
+
+    /* -----------------------------------------
+       前のステージをクリアしているか確認
+    ----------------------------------------- */
+
+    const index =
+        stages.findIndex(
+            stage => stage.id === stageId
+        );
+
+
+    if (index <= 0) {
+        return true;
+    }
+
+
+    const previousStage =
+        stages[index - 1];
+
+
+    return isStageCleared(
+        previousStage.id
+    );
+
+}
+
+
+
+/*
+   ★重要
+
+   ここではまだ
+
+       showStageSelect();
+
+   を書かない。
+
+   関数を全部定義した最後に
+   1回だけ実行する。
+*/
+
+/* =====================================================
+   GRAPH SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   グラフを描画
+===================================================== */
+
+function drawGraph(stage) {
+
+    const canvas =
+        document.getElementById("graphCanvas");
+
+    if (!canvas) return;
+
+    const ctx =
+        canvas.getContext("2d");
+
+    const width =
+        canvas.width;
+
+    const height =
+        canvas.height;
+
+
+    /* =====================================
+       グラフ表示範囲を自動調整
+    ===================================== */
+
+    const points =
+        stage.points || [];
+
+
+    let maxX = 5;
+    let maxY = 5;
+
+    let minX = -5;
+    let minY = -5;
+
+
+    points.forEach(point => {
+
+        maxX =
+            Math.max(
+                maxX,
+                Math.abs(point.x)
+            );
+
+        maxY =
+            Math.max(
+                maxY,
+                Math.abs(point.y)
+            );
+
+    });
+
+
+    /*
+       点の周りに余白を作る
+    */
+
+    maxX += 2;
+    maxY += 2;
+
+
+    /*
+       Canvas中央
+    */
+
+    const ox =
+        width / 2;
+
+    const oy =
+        height / 2;
+
+
+    /*
+       x方向・y方向の
+       どちらにも収まる縮尺
+    */
+
+    const scaleX =
+        width /
+        (maxX * 2);
+
+    const scaleY =
+        height /
+        (maxY * 2);
+
+
+    const scale =
+        Math.min(
+            scaleX,
+            scaleY
+        );
+
+
+    /* =====================================
+       背景
+    ===================================== */
+
+    ctx.clearRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    ctx.fillStyle =
+        "#f9fbff";
+
+    ctx.fillRect(
+        0,
+        0,
+        width,
+        height
+    );
+
+
+    /* =====================================
+       グリッド
+    ===================================== */
+
+    ctx.strokeStyle =
+        "#dfe6f2";
+
+    ctx.lineWidth = 1;
+
+
+    const gridX =
+        Math.ceil(
+            width /
+            scale /
+            2
+        );
+
+    const gridY =
+        Math.ceil(
+            height /
+            scale /
+            2
+        );
+
+
+    for (
+        let x = -gridX;
+        x <= gridX;
+        x++
+    ) {
+
+        const px =
+            ox +
+            x * scale;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            px,
+            0
+        );
+
+        ctx.lineTo(
+            px,
+            height
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    for (
+        let y = -gridY;
+        y <= gridY;
+        y++
+    ) {
+
+        const py =
+            oy -
+            y * scale;
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            py
+        );
+
+        ctx.lineTo(
+            width,
+            py
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /* =====================================
+       軸
+    ===================================== */
+
+    ctx.strokeStyle =
+        "#687896";
+
+    ctx.lineWidth = 2;
+
+
+    /* x軸 */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        0,
+        oy
+    );
+
+    ctx.lineTo(
+        width,
+        oy
+    );
+
+    ctx.stroke();
+
+
+    /* y軸 */
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        ox,
+        0
+    );
+
+    ctx.lineTo(
+        ox,
+        height
+    );
+
+    ctx.stroke();
+
+
+    /* =====================================
+       数字
+    ===================================== */
+
+    ctx.fillStyle =
+        "#687896";
+
+    ctx.font =
+        "14px system-ui";
+
+    ctx.textAlign =
+        "center";
+
+
+    for (
+        let x = -gridX;
+        x <= gridX;
+        x++
+    ) {
+
+        if (x === 0) continue;
+
+        const px =
+            ox +
+            x * scale;
+
+        if (
+            px < 20 ||
+            px > width - 20
+        ) continue;
+
+        ctx.fillText(
+            x,
+            px,
+            oy + 20
+        );
+
+    }
+
+
+    ctx.textAlign =
+        "right";
+
+
+    for (
+        let y = -gridY;
+        y <= gridY;
+        y++
+    ) {
+
+        if (y === 0) continue;
+
+        const py =
+            oy -
+            y * scale;
+
+        if (
+            py < 20 ||
+            py > height - 10
+        ) continue;
+
+        ctx.fillText(
+            y,
+            ox - 8,
+            py + 5
+        );
+
+    }
+
+
+    /* =====================================
+       軸ラベル
+    ===================================== */
+
+    ctx.font =
+        "bold 16px system-ui";
+
+    ctx.textAlign =
+        "left";
+
+    ctx.fillText(
+        "x",
+        width - 18,
+        oy - 8
+    );
+
+
+    ctx.textAlign =
+        "center";
+
+    ctx.fillText(
+        "y",
+        ox + 15,
+        18
+    );
+
+
+    /* =====================================
+       プレイヤーのグラフ
+    ===================================== */
+
+    drawPlayerGraph(
+        ctx,
+        stage,
+        ox,
+        oy,
+        scale
+    );
+
+
+    /* =====================================
+       問題の点
+    ===================================== */
+
+    if (
+        stage.problemType !== "findX" &&
+        stage.problemType !== "findY"
+    ) {
+
+        drawPoints(
+            ctx,
+            stage.points,
+            ox,
+            oy,
+            scale
+        );
+
+    }
+
+}
+
+/* =====================================================
+   プレイヤーのグラフ
+===================================================== */
+
+function drawPlayerGraph(
+    ctx,
+    stage,
+    ox,
+    oy,
+    scale
+) {
+
+    let a = null;
+    let b = 0;
+
+    const inputA =
+        document.getElementById("answerA");
+
+    const inputB =
+        document.getElementById("answerB");
+
+
+    /* -------------------------
+    入力値を取得
+    ------------------------- */
+
+    if (
+        inputA &&
+        inputA.value !== ""
+    ) {
+
+        a =
+            Number(
+                inputA.value
+            );
+
+    }
+
+
+    if (
+        inputB &&
+        inputB.value !== ""
+    ) {
+
+        b =
+            Number(
+                inputB.value
+            );
+
+    }
+
+
+    /* -------------------------
+    問題タイプによる確認
+    ------------------------- */
+
+    if (
+        stage.problemType === "findB"
+    ) {
+
+        /*
+        aは問題側から与えられる
+        bはプレイヤーが入力
+        */
+
+        a =
+            stage.givenA;
+
+        if (
+            !inputB ||
+            inputB.value === ""
+        ) {
+
+            return;
+
+        }
+
+        b =
+            Number(
+                inputB.value
+            );
+
+    }
+
+
+    /* findX,Y */
+
+    else if (
+        stage.problemType === "findY"||
+        stage.problemType === "findX"
+    ) {
+
+        /*
+        a,bともに問題側で決まっている
+        */
+
+        a =
+            stage.givenA;
+
+        b =
+            stage.givenB;
+
+    }
+
+
+    /* findA */
+
+    else if (
+        stage.problemType === "findA"
+    ) {
+
+        /*
+        aはプレイヤーが入力
+        bは問題側から与えられる
+        */
+
+        if (
+            !inputA ||
+            inputA.value === ""
+        ) {
+
+            return;
+
+        }
+
+        a =
+            Number(
+                inputA.value
+            );
+
+
+        if (
+            !Number.isFinite(a)
+        ) {
+
+            return;
+
+        }
+
+
+        /*
+        比例ならb=0
+        一次関数ならgivenB
+        */
+
+        if (
+            stage.form === "y = ax"
+        ) {
+
+            b = 0;
+
+        } else {
+
+            b =
+                stage.givenB;
+
+        }
+
+    }
+
+
+    /* その他 */
+
+    else {
+
+        if (
+            !inputA ||
+            inputA.value === ""
+        ) {
+
+            return;
+
+        }
+
+        if (
+            !Number.isFinite(a)
+        ) {
+
+            return;
+
+        }
+
+    }
+
+
+    /* -------------------------
+       グラフ描画
+    ------------------------- */
+
+    ctx.strokeStyle =
+        "#4d73df";
+
+    ctx.lineWidth = 4;
+
+    ctx.beginPath();
+
+
+    let first = true;
+
+
+    /*
+       Canvasの大きさを
+       この関数内で取得する
+    */
+
+    const canvas =
+        ctx.canvas;
+
+    const width =
+        canvas.width;
+
+    const height =
+        canvas.height;
+
+
+    /*
+       xを細かく変化させながら
+       yを計算する
+    */
+
+    for (
+        let x = -8;
+        x <= 8;
+        x += 0.05
+    ) {
+
+        let y;
+
+
+        /* =====================
+           一次関数
+        ===================== */
+
+        if (
+            stage.type === "linear"
+        ) {
+
+            y =
+                a * x + b;
+
+        }
+
+
+        /* =====================
+           二次関数
+        ===================== */
+
+        else if (
+            stage.type === "quadratic"
+        ) {
+
+            y =
+                a * x * x;
+
+        }
+
+
+        if (
+            !Number.isFinite(y)
+        ) {
+
+            continue;
+
+        }
+
+
+        /* ---------------------
+           座標変換
+        --------------------- */
+
+        const px =
+            ox + x * scale;
+
+        const py =
+            oy - y * scale;
+
+
+        /*
+           Canvasから大きく
+           外れた部分を無視
+        */
+
+        if (
+            py < -1000 ||
+            py > height + 1000
+        ) {
+
+            first = true;
+
+            continue;
+
+        }
+
+
+        /* ---------------------
+           線をつなぐ
+        --------------------- */
+
+        if (first) {
+
+            ctx.moveTo(
+                px,
+                py
+            );
+
+            first = false;
+
+        } else {
+
+            ctx.lineTo(
+                px,
+                py
+            );
+
+        }
+
+    }
+
+
+    ctx.stroke();
+
+}
+
+/* =====================================================
+   問題の点を描画
+===================================================== */
+
+function drawPoints(
+    ctx,
+    points,
+    ox,
+    oy,
+    scale
+) {
+
+    points.forEach(
+        point => {
+
+            const px =
+                ox +
+                point.x * scale;
+
+            const py =
+                oy -
+                point.y * scale;
+
+
+            /* ---------------------
+               点
+            --------------------- */
+
+            ctx.beginPath();
+
+            ctx.arc(
+                px,
+                py,
+                7,
+                0,
+                Math.PI * 2
+            );
+
+            ctx.fillStyle =
+                "#df5967";
+
+            ctx.fill();
+
+
+            /* ---------------------
+               ラベル
+            --------------------- */
+
+            ctx.fillStyle =
+                "#c44949";
+
+            ctx.font =
+                "bold 16px system-ui";
+
+            ctx.textAlign =
+                "left";
+
+            ctx.fillText(
+                `${point.label}(${point.x},${point.y})`,
+                px + 10,
+                py - 10
+            );
+
+        }
+    );
+
+}
+
+
+/* =====================================================
+   リアルタイム描画
+===================================================== */
+
+function previewGraph() {
+
+    if (!currentStage) return;
+
+    drawGraph(
+        currentStage
+    );
+
+}
+
+/* =====================================================
+   ANSWER SYSTEM
+===================================================== */
+
+
+/* =====================================================
+   正解判定
+===================================================== */
+
+function checkAnswer() {
+
+    if (!currentStage) return;
+
+
+    const stage =
+        currentStage;
+
+
+    /* =====================================
+       一次関数・比例
+    ===================================== */
+
+    if (
+        stage.type === "linear"
+    ) {
+
+        const inputA =
+            document.getElementById(
+                "answerA"
+            );
+
+        const inputB =
+            document.getElementById(
+                "answerB"
+            );
+
+        /* =========================
+        bだけを答える問題
+        ========================= */
+
+        if (
+            stage.problemType === "findB"
+        ) {
+
+            if (
+                !inputB ||
+                inputB.value === ""
+            ) {
+
+                showFeedback(
+                    "⚠️ bを入力しよう。",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const b =
+                Number(inputB.value);
+
+
+            if (
+                isClose(
+                    b,
+                    stage.answer.b
+                )
+            ) {
+
+                clearStage();
+
+            } else {
+
+                wrongAnswer();
+
+            }
+
+
+            return;
+
+        }
+
+        /* =========================
+        yを求める
+        ========================= */
+
+        if (
+            stage.problemType === "findY"
+        ) {
+
+            const inputY =
+                document.getElementById(
+                    "answerY"
+                );
+
+
+            if (
+                !inputY ||
+                inputY.value === ""
+            ) {
+
+                showFeedback(
+                    "⚠️ yを入力しよう。",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const y =
+                Number(inputY.value);
+
+
+            if (
+                isClose(
+                    y,
+                    stage.answer.y
+                )
+            ) {
+
+                clearStage();
+
+            } else {
+
+                wrongAnswer();
+
+            }
+
+
+            return;
+
+        }
+
+        /* =========================
+        xを求める
+        ========================= */
+
+        if (
+            stage.problemType === "findX"
+        ) {
+
+            const inputX =
+                document.getElementById(
+                    "answerX"
+                );
+
+
+            if (
+                !inputX ||
+                inputX.value === ""
+            ) {
+
+                showFeedback(
+                    "⚠️ xを入力しよう。",
+                    false
+                );
+
+                return;
+
+            }
+
+
+            const x =
+                Number(inputX.value);
+
+
+            if (
+                isClose(
+                    x,
+                    stage.answer.x
+                )
+            ) {
+
+                clearStage();
+
+            } else {
+
+                wrongAnswer();
+
+            }
+
+
+            return;
+
+        }
+
+        /* -------------------------
+           a が未入力
+        ------------------------- */
+
+        if (
+            !inputA ||
+            inputA.value === ""
+        ) {
+
+            showFeedback(
+                "⚠️ aを入力しよう。",
+                false
+            );
+
+            return;
+
+        }
+
+
+        const a =
+            Number(inputA.value);
+
+
+        /* -------------------------
+        aだけ答える問題
+        ------------------------- */
+
+        if (
+            stage.problemType === "findA" ||
+            stage.form === "y = ax"
+        ) {
+
+            if (
+                isClose(
+                    a,
+                    stage.answer.a
+                )
+            ) {
+
+                clearStage();
+
+            } else {
+
+                wrongAnswer();
+
+            }
+
+            return;
+
+        }
+
+
+        /* -------------------------
+           一次関数 y = ax + b
+        ------------------------- */
+
+        if (!inputB) {
+
+            return;
+
+        }
+
+
+        if (
+            inputB.value === ""
+        ) {
+
+            showFeedback(
+                "⚠️ bを入力しよう。",
+                false
+            );
+
+            return;
+
+        }
+
+
+        const b =
+            Number(inputB.value);
+
+
+        /* -------------------------
+           正解判定
+        ------------------------- */
+
+        if (
+            isClose(
+                a,
+                stage.answer.a
+            ) &&
+            isClose(
+                b,
+                stage.answer.b
+            )
+        ) {
+
+            clearStage();
+
+        } else {
+
+            wrongAnswer();
+
+        }
+
+
+        return;
+
+    }
+
+
+
+    /* =====================================
+       二次関数
+    ===================================== */
+
+    if (
+        stage.type === "quadratic"
+    ) {
+
+        const inputA =
+            document.getElementById(
+                "answerA"
+            );
+
+
+        if (
+            !inputA
+        ) {
+
+            return;
+
+        }
+
+
+        if (
+            inputA.value === ""
+        ) {
+
+            showFeedback(
+                "⚠️ aを入力しよう。",
+                false
+            );
+
+            return;
+
+        }
+
+
+        const a =
+            Number(inputA.value);
+
+
+        if (
+            isClose(
+                a,
+                stage.answer.a
+            )
+        ) {
+
+            clearStage();
+
+        } else {
+
+            wrongAnswer();
+
+        }
+
+    }
+
+}
+
+
+/* =====================================================
+   数値比較
+===================================================== */
+
+function isClose(
+    a,
+    b
+) {
+
+    return Math.abs(
+        a - b
+    ) < 0.0001;
+
+}
+
+
+
+/* =====================================================
+   不正解
+===================================================== */
+
+function wrongAnswer() {
+
+    combo = 0;
+
+    updateCombo();
+
+
+    showFeedback(
+        "❌ 不正解！点の座標とグラフを確認しよう。",
+        false
+    );
+
+}
+
+
+
+/* =====================================================
+   フィードバック
+===================================================== */
+
+function showFeedback(
+    message,
+    success
+) {
+
+    const box =
+        document.getElementById(
+            "feedback"
+        );
+
+
+    if (!box) return;
+
+
+    box.textContent =
+        message;
+
+
+    box.className =
+        success
+        ? "feedback success"
+        : "feedback error";
+
+}
+
+
+
+/* =====================================================
+   COMBO
+===================================================== */
+
+function updateCombo() {
+
+    const element =
+        document.querySelector(
+            ".combo"
+        );
+
+
+    if (!element) return;
+
+
+    element.textContent =
+        `🔥 COMBO ×${combo}`;
+
+}
+
+
+
+
+
+
+/* =====================================================
+   CLEAR SCREEN
+===================================================== */
+
+function showClearScreen(
+    reward
+) {
+
+    const stage =
+        currentStage;
+
+
+    const nextIndex =
+        currentStageIndex + 1;
+
+
+    const hasNext =
+        nextIndex <
+        stages.length;
+
+
+    const app =
+        document.getElementById(
+            "app"
+        );
+
+
+    app.innerHTML = `
+
+        <main
+            class="screen clear-screen"
+        >
+
+            <div class="clear-box">
+
+
+                <div class="clear-title">
+
+                    ✨ CLEAR! ✨
+
+                </div>
+
+
+                <div class="clear-stage">
+
+                    STAGE ${stage.id}
+
+                    <br>
+
+                    ${stage.name}
+
+                </div>
+
+
+                <div class="reward">
+
+                    ⭐ +${reward}
+
+                    <br>
+
+                    🔥 COMBO ×${combo}
+
+                </div>
+
+
+                ${
+                    hasNext
+
+                    ? `
+
+                        <button
+                            class="next-button"
+                            onclick="nextStage()"
+                        >
+
+                            次のステージ →
+
+                        </button>
+
+                    `
+
+                    : `
+
+                        <button
+                            class="next-button"
+                            onclick="showAllClear()"
+                        >
+
+                            🎉 エリアクリア！
+
+                        </button>
+
+                    `
+                }
+
+
+                <button
+                    class="stage-button"
+                    onclick="showStageSelect()"
+                >
+
+                    ステージ選択へ
+
+                </button>
+
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+
+
+/* =====================================================
+   NEXT STAGE
+===================================================== */
+
+function nextStage() {
+
+    const nextIndex =
+        currentStageIndex + 1;
+
+
+    if (
+        nextIndex >=
+        stages.length
+    ) {
+
+        showAllClear();
+
+        return;
+
+    }
+
+
+    currentStageIndex =
+        nextIndex;
+
+
+    currentStage =
+        stages[nextIndex];
+
+
+    startStage(
+        currentStage
+    );
+
+}
+
+
+
+/* =====================================================
+   ALL CLEAR
+===================================================== */
+
+function showAllClear() {
+
+    const app =
+        document.getElementById(
+            "app"
+        );
+
+
+    app.innerHTML = `
+
+        <main
+            class="screen clear-screen"
+        >
+
+            <div class="clear-box">
+
+
+                <div class="clear-title">
+
+                    🎉 AREA CLEAR!
+
+                </div>
+
+
+                <div class="clear-stage">
+
+                    関数攻略
+
+                    <br>
+
+                    全ステージクリア！
+
+                </div>
+
+
+                <div class="reward">
+
+                    🏆 SCORE
+
+                    <br>
+
+                    ${score}
+
+                </div>
+
+
+                <button
+                    class="next-button"
+                    onclick="showStageSelect()"
+                >
+
+                    ステージ選択へ
+
+                </button>
+
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+/* =====================================================
+   HINT SYSTEM
+===================================================== */
+
+function showHint() {
+
+    if (!currentStage) return;
+
+
+    const box =
+        document.getElementById(
+            "hintBox"
+        );
+
+
+    if (!box) return;
+
+
+    /*
+       ステージデータに
+       hintがあれば表示
+    */
+
+    const hint =
+        currentStage.hint ||
+        "💡 グラフ上の点の座標に注目しよう。";
+
+
+    box.innerHTML = `
+
+        💡 <b>ヒント</b>
+
+        <br><br>
+
+        ${hint}
+
+    `;
+
+
+    box.style.display =
+        "block";
+
+}
+
+
+/* =====================================================
+   CLEAR演出
+===================================================== */
+
+function clearStage() {
+
+    if (!currentStage) return;
+
+
+    /* -------------------------
+       コンボ
+    ------------------------- */
+
+    combo++;
+
+
+    updateCombo();
+
+
+    /* -------------------------
+       セーブ
+    ------------------------- */
+
+    saveStageClear(
+        currentStage.id
+    );
+
+
+    /* -------------------------
+       スコア
+    ------------------------- */
+
+    const reward =
+        100 +
+        (combo - 1) * 25;
+
+
+    score += reward;
+
+    const expReward =
+        30 +
+        currentStage.difficulty * 10;
+
+    const levelUp =
+        addExp(expReward);
+
+
+    /* -------------------------
+       CLEAR演出
+    ------------------------- */
+
+    const app =
+        document.getElementById(
+            "app"
+        );
+
+
+    app.innerHTML = `
+
+        <main
+            class="
+                screen
+                clear-screen
+            "
+        >
+
+            <div
+                class="
+                    clear-box
+                    clear-animation
+                "
+            >
+
+                <div
+                    class="clear-title"
+                >
+
+                    ✨ CLEAR! ✨
+
+                </div>
+
+
+                <div
+                    class="clear-stage"
+                >
+
+                    STAGE ${currentStage.id}
+
+                    <br>
+
+                    ${currentStage.name}
+
+                </div>
+
+
+                <div
+                    class="reward"
+                >
+                    ⭐ +${reward}
+
+                    <br>
+
+                    🔥 COMBO ×${combo}
+
+                    <br>
+
+                    ✨ +${expReward} EXP
+                </div>
+
+
+                <div
+                    style="
+                        margin-bottom:20px;
+                        color:#71809b;
+                    "
+                >
+
+                    正しいグラフを
+                    完成させた！
+
+                </div>
+
+
+                ${
+                    currentStageIndex + 1
+                    < stages.length
+
+                    ? `
+
+                        <button
+                            class="next-button"
+                            onclick="nextStage()"
+                        >
+
+                            次のステージ →
+
+                        </button>
+
+                    `
+
+                    : `
+
+                        <button
+                            class="next-button"
+                            onclick="showAllClear()"
+                        >
+
+                            🎉 エリアクリア！
+
+                        </button>
+
+                    `
+                }
+
+
+                <button
+                    class="stage-button"
+                    onclick="showStageSelect()"
+                >
+
+                    ステージ選択へ
+
+                </button>
+
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+
+/* =====================================================
+   NEXT STAGE
+===================================================== */
+
+function nextStage() {
+
+    const nextIndex =
+        currentStageIndex + 1;
+
+
+    if (
+        nextIndex >=
+        stages.length
+    ) {
+
+        showAllClear();
+
+        return;
+
+    }
+
+
+    currentStageIndex =
+        nextIndex;
+
+
+    currentStage =
+        stages[nextIndex];
+
+
+    startStage(
+        currentStage
+    );
+
+}
+
+
+/* =====================================================
+   AREA CLEAR
+===================================================== */
+
+function showAllClear() {
+
+    const app =
+        document.getElementById(
+            "app"
+        );
+
+
+    app.innerHTML = `
+
+        <main
+            class="
+                screen
+                clear-screen
+            "
+        >
+
+            <div
+                class="clear-box"
+            >
+
+                <div
+                    class="clear-title"
+                >
+
+                    🎉 AREA CLEAR!
+
+                </div>
+
+
+                <div
+                    class="clear-stage"
+                >
+
+                    関数攻略
+
+                    <br><br>
+
+                    全ステージクリア！
+
+                </div>
+
+
+                <div
+                    class="reward"
+                >
+
+                    🏆 SCORE
+
+                    <br>
+
+                    ${score}
+
+                </div>
+
+
+                <button
+                    class="next-button"
+                    onclick="showStageSelect()"
+                >
+
+                    ステージ選択へ
+
+                </button>
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+/* =====================================================
+   TITLE SCREEN
+===================================================== */
+
+function showTitle() {
+
+    const app =
+        document.getElementById("app");
+
+    if (!app) return;
+
+
+    app.innerHTML = `
+
+        <main class="title-screen">
+
+            <div class="title-content">
+
+                <div class="title-icon">
+                    📈
+                </div>
+
+                <h1 class="game-title">
+                    FUNCTION
+                </h1>
+
+                <h2 class="game-title-jp">
+                    関数攻略
+                </h2>
+
+                <p class="game-subtitle">
+                    グラフを描いて、関数を攻略せよ。
+                </p>
+
+
+                <div class="title-menu">
+
+                    <button
+                        class="title-start-button"
+                        onclick="showStageSelect()"
+                    >
+
+                        ▶ GAME START
+
+                    </button>
+
+
+                    <button
+                        class="title-sub-button"
+                        onclick="showHowToPlay()"
+                    >
+
+                        📖 あそびかた
+
+                    </button>
+
+                    <button
+                        class="title-danger-button"
+                        onclick="resetGameData()"
+                    >
+                        🗑 セーブデータを消去
+                    </button>
+
+                </div>
+
+
+                <div class="player-status">
+
+                    <div class="player-level">
+
+                        LEVEL ${playerLevel}
+
+                    </div>
+
+
+                    <div class="exp-bar">
+
+                        <div
+                            class="exp-fill"
+                            style="
+                                width:
+                                ${
+                                    playerExp /
+                                    getExpForNextLevel() *
+                                    100
+                                }%;
+                            "
+                        ></div>
+
+                    </div>
+
+
+                    <div class="exp-text">
+
+                        ${playerExp}
+                        /
+                        ${getExpForNextLevel()}
+                        EXP
+
+                    </div>
+
+
+                    <div class="title-score">
+
+                        ⭐ ${score}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+
+/* =====================================================
+   HOW TO PLAY
+===================================================== */
+
+function showHowToPlay() {
+
+    const app =
+        document.getElementById("app");
+
+    if (!app) return;
+
+
+    app.innerHTML = `
+
+        <main class="howto-screen">
+
+            <div class="howto-box">
+
+                <h1>
+                    📖 あそびかた
+                </h1>
+
+
+                <div class="howto-step">
+
+                    <span>①</span>
+
+                    <div>
+
+                        <b>グラフを見る</b>
+
+                        <p>
+                            グラフ上に表示された
+                            点の座標を確認しよう。
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="howto-step">
+
+                    <span>②</span>
+
+                    <div>
+
+                        <b>関数の式を入力</b>
+
+                        <p>
+                            点をすべて通るように
+                            aやbの値を入力しよう。
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="howto-step">
+
+                    <span>③</span>
+
+                    <div>
+
+                        <b>リアルタイムで確認</b>
+
+                        <p>
+                            入力するとグラフが
+                            リアルタイムで変化するよ。
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <div class="howto-step">
+
+                    <span>④</span>
+
+                    <div>
+
+                        <b>CLEAR！</b>
+
+                        <p>
+                            正しいグラフになったら
+                            ステージクリア！
+                        </p>
+
+                    </div>
+
+                </div>
+
+
+                <button
+                    class="title-sub-button"
+                    onclick="showTitle()"
+                >
+
+                    ← タイトルへ
+
+                </button>
+
+            </div>
+
+        </main>
+
+    `;
+
+}
+
+/* =====================================================
+   EXP SYSTEM
+===================================================== */
+
+function getExpForNextLevel() {
+
+    return (
+        100 +
+        (playerLevel - 1) * 50
+    );
+
+}
+
+
+function addExp(amount) {
+
+    playerExp += amount;
+
+
+    let levelUp = false;
+
+
+    while (
+        playerExp >=
+        getExpForNextLevel()
+    ) {
+
+        playerExp -=
+            getExpForNextLevel();
+
+        playerLevel++;
+
+        levelUp = true;
+
+    }
+
+
+    saveGame();
+
+
+    return levelUp;
+
+}
+
+/* =====================================================
+   SAVE RESET
+===================================================== */
+
+function resetGameData() {
+
+    const ok =
+        confirm(
+            "セーブデータをすべて消去しますか？\n\n" +
+            "クリア状況・スコア・EXP・レベルがリセットされます。"
+        );
+
+
+    if (!ok) return;
+
+
+    localStorage.removeItem(
+        SAVE_KEY
+    );
+
+
+    /* 現在のデータも初期化 */
+
+    clearData = [];
+
+    score = 0;
+
+    playerExp = 0;
+
+    playerLevel = 1;
+
+    combo = 0;
+
+
+    /* タイトル画面を更新 */
+
+    showTitle();
+
+}
+
+/* =====================================================
+   ANSWER CALCULATOR
+===================================================== */
+
+function calculateAnswer(stage) {
+
+    const points =
+        stage.points || [];
+
+
+    /* -------------------------
+       比例 y = ax
+    ------------------------- */
+
+    if (
+        stage.type === "linear" &&
+        stage.form === "y = ax"
+    ) {
+
+        const point =
+            points.find(
+                p => p.x !== 0
+            );
+
+        if (!point) {
+            return {};
+        }
+
+
+        return {
+
+            a:
+                point.y / point.x
+
+        };
+
+    }
+
+
+    /* -------------------------
+       一次関数 y = ax + b
+    ------------------------- */
+
+    if (
+        stage.type === "linear" &&
+        stage.form === "y = ax + b"
+    ) {
+
+        if (
+            points.length < 2
+        ) {
+
+            return {};
+
+        }
+
+
+        const A =
+            points[0];
+
+        const B =
+            points[1];
+
+
+        const a =
+            (B.y - A.y) /
+            (B.x - A.x);
+
+
+        const b =
+            A.y -
+            a * A.x;
+
+
+        return {
+
+            a,
+            b
+
+        };
+
+    }
+
+
+    /* -------------------------
+       二次関数 y = ax²
+    ------------------------- */
+
+    if (
+        stage.type === "quadratic"
+    ) {
+
+        const point =
+            points.find(
+                p => p.x !== 0
+            );
+
+
+        if (!point) {
+
+            return {};
+
+        }
+
+
+        return {
+
+            a:
+                point.y /
+                (point.x * point.x)
+
+        };
+
+    }
+
+
+    return {};
+
+}
+
+function generateProblem(stage) {
+
+    if (stage.type === "linear") {
+
+        return generateLinearProblem({
+
+            form:
+                stage.form,
+
+            problemType:
+                stage.problemType || "twoPoints",
+
+            a:
+                stage.a,
+
+            b:
+                stage.b,
+
+            minA:
+                stage.minA,
+
+            maxA:
+                stage.maxA,
+
+            minB:
+                stage.minB,
+
+            maxB:
+                stage.maxB,
+
+            x1:
+                stage.x1,
+
+            x2:
+                stage.x2,
+
+            targetY:
+                stage.targetY
+
+        });
+
+    }
+
+
+    if (stage.type === "quadratic") {
+
+        return generateQuadraticProblem({
+
+            problemType:
+                stage.problemType || "twoPoints",
+
+            a:
+                stage.a,
+
+            minA:
+                stage.minA,
+
+            maxA:
+                stage.maxA,
+
+            x1:
+                stage.x1,
+
+            x2:
+                stage.x2,
+
+            x3:
+                stage.x3
+
+        });
+
+    }
+
+
+    return null;
+
+}
+
+function randomInt(min, max) {
+
+    return Math.floor(
+        Math.random() *
+        (max - min + 1)
+    ) + min;
+
+}
+
+
+function randomChoice(array) {
+
+    return array[
+        randomInt(
+            0,
+            array.length - 1
+        )
+    ];
+
+}
+
+/* =====================================================
+   GAME START
+===================================================== */
+
+/*
+   ★ 一番最後に実行する
+
+   SAVE_KEYなどが全部
+   初期化された後なので、
+   前回のエラーが起きない。
+*/
+
+loadGame();
+
+showTitle();
+
+</script>
+
+</body>
+
+</html>
