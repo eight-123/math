@@ -1,0 +1,2550 @@
+<!DOCTYPE html>
+<html lang="ja">
+
+<head>
+
+<meta charset="UTF-8">
+
+<meta name="viewport"
+      content="width=device-width, initial-scale=1.0">
+
+<title>FREE GRAPH</title>
+
+<style>
+
+* {
+    box-sizing: border-box;
+}
+
+html,
+body {
+
+    margin: 0;
+
+    width: 100%;
+    height: 100%;
+
+    overflow: hidden;
+
+    background: #101218;
+    color: white;
+
+    font-family:
+        Arial,
+        "Noto Sans JP",
+        sans-serif;
+}
+
+
+/* =========================
+   ヘッダー
+========================= */
+
+header {
+
+    height: 55px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+
+    padding: 0 14px;
+
+    background: #181b23;
+
+    border-bottom:
+        1px solid #303440;
+}
+
+.title {
+
+    font-size: 19px;
+    font-weight: bold;
+}
+
+
+/* =========================
+   ボタン
+========================= */
+
+button {
+
+    border: none;
+
+    border-radius: 7px;
+
+    padding:
+        8px 12px;
+
+    background: #292e3a;
+
+    color: white;
+
+    cursor: pointer;
+}
+
+button:hover {
+
+    background: #383e4d;
+}
+
+button:active {
+
+    transform: scale(0.97);
+}
+
+
+/* =========================
+   メイン
+========================= */
+
+.main {
+
+    height:
+        calc(100vh - 55px);
+
+    display: flex;
+
+    flex-direction: column;
+}
+
+
+/* =========================
+   グラフ
+========================= */
+
+.graph-area {
+
+    position: relative;
+
+    flex: 1;
+
+    min-height: 0;
+}
+
+#graphCanvas {
+
+    width: 100%;
+    height: 100%;
+
+    display: block;
+
+    cursor: grab;
+
+    touch-action: none;
+}
+
+#graphCanvas.dragging {
+
+    cursor: grabbing;
+}
+
+
+/* =========================
+   座標
+========================= */
+
+#cursorInfo {
+
+    position: absolute;
+
+    top: 10px;
+    left: 10px;
+
+    padding:
+        6px 9px;
+
+    border-radius: 6px;
+
+    background:
+        rgba(20, 23, 30, 0.85);
+
+    border:
+        1px solid #353a47;
+
+    font-size: 12px;
+
+    pointer-events: none;
+}
+
+
+/* =========================
+   下パネル
+========================= */
+
+.panel {
+
+    padding: 10px;
+
+    background: #181b23;
+
+    border-top:
+        1px solid #303440;
+
+    max-height: 42vh;
+
+    overflow-y: auto;
+}
+
+
+/* =========================
+   入力
+========================= */
+
+.input-row {
+
+    display: flex;
+
+    gap: 7px;
+}
+
+#expressionInput {
+
+    flex: 1;
+
+    min-width: 0;
+
+    padding:
+        10px;
+
+    border:
+        1px solid #3b4050;
+
+    border-radius: 7px;
+
+    background: #0f1117;
+
+    color: white;
+
+    outline: none;
+
+    font-size: 16px;
+}
+
+#expressionInput:focus {
+
+    border-color:
+        #6879b8;
+}
+
+
+/* =========================
+   グラフ一覧
+========================= */
+
+.graph-list {
+
+    margin-top: 9px;
+
+    display: flex;
+
+    flex-direction: column;
+
+    gap: 6px;
+}
+
+.graph-item {
+
+    display: flex;
+
+    align-items: center;
+
+    gap: 7px;
+
+    padding: 7px;
+
+    border-radius: 7px;
+
+    background: #222630;
+}
+
+.graph-name {
+
+    flex: 1;
+
+    min-width: 0;
+
+    overflow: hidden;
+
+    text-overflow: ellipsis;
+
+    white-space: nowrap;
+
+    font-family:
+        Consolas,
+        monospace;
+}
+
+
+/* =========================
+   エラー
+========================= */
+
+#errorMessage {
+
+    min-height: 18px;
+
+    margin-top: 6px;
+
+    color:
+        #ff8585;
+
+    font-size: 12px;
+}
+
+
+/* =========================
+   スマホ
+========================= */
+
+@media (max-width: 600px) {
+
+    header {
+
+        height: 50px;
+    }
+
+    .main {
+
+        height:
+            calc(100vh - 50px);
+    }
+
+    .panel {
+
+        max-height: 48vh;
+    }
+
+}
+
+</style>
+
+</head>
+
+
+<body>
+
+
+<header>
+
+    <div class="title">
+        FREE GRAPH
+    </div>
+
+    <div>
+
+        <button onclick="resetView()">
+            RESET
+        </button>
+
+        <button onclick="goBack()">
+            BACK
+        </button>
+
+    </div>
+
+</header>
+
+
+<div class="main">
+
+
+    <div class="graph-area">
+
+        <canvas id="graphCanvas"></canvas>
+
+        <div id="cursorInfo">
+            x = 0　y = 0
+        </div>
+
+    </div>
+
+
+    <div class="panel">
+
+        <div class="input-row">
+
+            <input
+                id="expressionInput"
+                type="text"
+                autocomplete="off"
+                spellcheck="false"
+                placeholder="y = x^2"
+            >
+
+            <button onclick="addExpression()">
+                DRAW
+            </button>
+
+        </div>
+
+
+        <div id="errorMessage"></div>
+
+        <div
+            id="graphList"
+            class="graph-list">
+        </div>
+
+    </div>
+
+</div>
+
+
+<script>
+
+
+/* ==================================================
+   Canvas
+================================================== */
+
+const canvas =
+    document.getElementById(
+        "graphCanvas"
+    );
+
+const ctx =
+    canvas.getContext("2d");
+
+
+/* ==================================================
+   グラフ表示状態
+================================================== */
+
+const view = {
+
+    centerX: 0,
+
+    centerY: 0,
+
+    scale: 50
+
+};
+
+
+/* ==================================================
+   グラフ一覧
+================================================== */
+
+const expressions = [];
+
+
+/* ==================================================
+   Canvasサイズ
+================================================== */
+
+function resizeCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const dpr =
+        window.devicePixelRatio || 1;
+
+
+    canvas.width =
+        Math.round(
+            rect.width * dpr
+        );
+
+    canvas.height =
+        Math.round(
+            rect.height * dpr
+        );
+
+
+    ctx.setTransform(
+        dpr,
+        0,
+        0,
+        dpr,
+        0,
+        0
+    );
+
+
+    draw();
+
+}
+
+
+window.addEventListener(
+    "resize",
+    resizeCanvas
+);
+
+
+/* ==================================================
+   Canvas完全クリア
+================================================== */
+
+function clearCanvas() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    ctx.save();
+
+
+    ctx.setTransform(
+        1,
+        0,
+        0,
+        1,
+        0,
+        0
+    );
+
+
+    ctx.clearRect(
+        0,
+        0,
+        canvas.width,
+        canvas.height
+    );
+
+
+    ctx.restore();
+
+}
+
+
+/* ==================================================
+   グラフ → 画面
+================================================== */
+
+function graphToScreen(
+    x,
+    y
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            rect.width / 2 +
+            (x - view.centerX) *
+            view.scale,
+
+        y:
+            rect.height / 2 -
+            (y - view.centerY) *
+            view.scale
+
+    };
+
+}
+
+
+/* ==================================================
+   画面 → グラフ
+================================================== */
+
+function screenToGraph(
+    sx,
+    sy
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    return {
+
+        x:
+            view.centerX +
+            (
+                sx -
+                rect.width / 2
+            ) /
+            view.scale,
+
+        y:
+            view.centerY -
+            (
+                sy -
+                rect.height / 2
+            ) /
+            view.scale
+
+    };
+
+}
+
+
+/* ==================================================
+   グリッド
+================================================== */
+
+function drawGrid() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+    const width =
+        rect.width;
+
+    const height =
+        rect.height;
+
+
+    clearCanvas();
+
+
+    /*
+       グリッド間隔
+    */
+
+    const targetPixels = 70;
+
+    const rawStep =
+        targetPixels /
+        view.scale;
+
+
+    const power =
+        Math.pow(
+            10,
+            Math.floor(
+                Math.log10(
+                    rawStep
+                )
+            )
+        );
+
+
+    const normalized =
+        rawStep / power;
+
+
+    let step;
+
+
+    if (
+        normalized <= 1
+    ) {
+
+        step =
+            power;
+
+    }
+
+    else if (
+        normalized <= 2
+    ) {
+
+        step =
+            2 * power;
+
+    }
+
+    else if (
+        normalized <= 5
+    ) {
+
+        step =
+            5 * power;
+
+    }
+
+    else {
+
+        step =
+            10 * power;
+
+    }
+
+
+    ctx.strokeStyle =
+        "#252934";
+
+    ctx.lineWidth = 1;
+
+
+    /*
+       X方向
+    */
+
+    const minX =
+        view.centerX -
+        width /
+        2 /
+        view.scale;
+
+    const maxX =
+        view.centerX +
+        width /
+        2 /
+        view.scale;
+
+
+    const firstX =
+        Math.floor(
+            minX / step
+        ) * step;
+
+
+    for (
+        let x = firstX;
+        x <= maxX;
+        x += step
+    ) {
+
+        const p =
+            graphToScreen(
+                x,
+                0
+            );
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            p.x,
+            0
+        );
+
+        ctx.lineTo(
+            p.x,
+            height
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+       Y方向
+    */
+
+    const minY =
+        view.centerY -
+        height /
+        2 /
+        view.scale;
+
+    const maxY =
+        view.centerY +
+        height /
+        2 /
+        view.scale;
+
+
+    const firstY =
+        Math.floor(
+            minY / step
+        ) * step;
+
+
+    for (
+        let y = firstY;
+        y <= maxY;
+        y += step
+    ) {
+
+        const p =
+            graphToScreen(
+                0,
+                y
+            );
+
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            p.y
+        );
+
+        ctx.lineTo(
+            width,
+            p.y
+        );
+
+        ctx.stroke();
+
+    }
+
+}
+
+
+/* ==================================================
+   軸
+================================================== */
+
+function drawAxes() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const width =
+        rect.width;
+
+    const height =
+        rect.height;
+
+
+    const origin =
+        graphToScreen(
+            0,
+            0
+        );
+
+
+    ctx.strokeStyle =
+        "#687080";
+
+    ctx.lineWidth = 2;
+
+
+    /*
+       X軸
+    */
+
+    if (
+        origin.y >= 0 &&
+        origin.y <= height
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            0,
+            origin.y
+        );
+
+        ctx.lineTo(
+            width,
+            origin.y
+        );
+
+        ctx.stroke();
+
+    }
+
+
+    /*
+       Y軸
+    */
+
+    if (
+        origin.x >= 0 &&
+        origin.x <= width
+    ) {
+
+        ctx.beginPath();
+
+        ctx.moveTo(
+            origin.x,
+            0
+        );
+
+        ctx.lineTo(
+            origin.x,
+            height
+        );
+
+        ctx.stroke();
+
+    }
+
+}
+
+
+/* ==================================================
+   軸の数字
+================================================== */
+
+function drawLabels() {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const width =
+        rect.width;
+
+    const height =
+        rect.height;
+
+
+    ctx.fillStyle =
+        "#858b99";
+
+    ctx.font =
+        "12px Arial";
+
+
+    const left =
+        Math.floor(
+            view.centerX -
+            width /
+            2 /
+            view.scale
+        );
+
+    const right =
+        Math.ceil(
+            view.centerX +
+            width /
+            2 /
+            view.scale
+        );
+
+
+    for (
+        let x = left;
+        x <= right;
+        x++
+    ) {
+
+        if (x === 0) continue;
+
+
+        const p =
+            graphToScreen(
+                x,
+                0
+            );
+
+
+        if (
+            p.x < 0 ||
+            p.x > width
+        ) {
+
+            continue;
+
+        }
+
+
+        ctx.fillText(
+            x,
+            p.x + 3,
+            p.y - 5
+        );
+
+    }
+
+
+    const bottom =
+        Math.floor(
+            view.centerY -
+            height /
+            2 /
+            view.scale
+        );
+
+    const top =
+        Math.ceil(
+            view.centerY +
+            height /
+            2 /
+            view.scale
+        );
+
+
+    for (
+        let y = bottom;
+        y <= top;
+        y++
+    ) {
+
+        if (y === 0) continue;
+
+
+        const p =
+            graphToScreen(
+                0,
+                y
+            );
+
+
+        if (
+            p.y < 0 ||
+            p.y > height
+        ) {
+
+            continue;
+
+        }
+
+
+        ctx.fillText(
+            y,
+            p.x + 5,
+            p.y - 3
+        );
+
+    }
+
+}
+
+
+/* ==================================================
+   全体描画
+================================================== */
+
+function draw() {
+
+    drawGrid();
+
+    drawAxes();
+
+    drawLabels();
+
+}
+
+
+/* ==================================================
+   RESET
+================================================== */
+
+function resetView() {
+
+    view.centerX = 0;
+
+    view.centerY = 0;
+
+    view.scale = 50;
+
+    draw();
+
+}
+
+
+/* ==================================================
+   戻る
+================================================== */
+
+function goBack() {
+
+    if (
+        document.referrer
+    ) {
+
+        history.back();
+
+    }
+
+    else {
+
+        location.href =
+            "index.html";
+
+    }
+
+}
+
+
+/* ==================================================
+   式追加
+================================================== */
+
+function addExpression() {
+
+    const input =
+        document.getElementById(
+            "expressionInput"
+        );
+
+    const error =
+        document.getElementById(
+            "errorMessage"
+        );
+
+
+    const text =
+        input.value.trim();
+
+
+    if (
+        text === ""
+    ) {
+
+        error.textContent =
+            "式を入力してください。";
+
+        return;
+
+    }
+
+
+    expressions.push({
+
+        text: text,
+
+        visible: true
+
+    });
+
+
+    input.value = "";
+
+    error.textContent = "";
+
+
+    updateGraphList();
+
+    draw();
+
+}
+
+
+/* ==================================================
+   グラフ一覧
+================================================== */
+
+function updateGraphList() {
+
+    const list =
+        document.getElementById(
+            "graphList"
+        );
+
+
+    list.innerHTML = "";
+
+
+    expressions.forEach(
+        (
+            item,
+            index
+        ) => {
+
+            const row =
+                document.createElement(
+                    "div"
+                );
+
+            row.className =
+                "graph-item";
+
+
+            const name =
+                document.createElement(
+                    "div"
+                );
+
+            name.className =
+                "graph-name";
+
+            name.textContent =
+                item.text;
+
+
+            const toggle =
+                document.createElement(
+                    "button"
+                );
+
+            toggle.textContent =
+                item.visible
+                    ? "表示"
+                    : "非表示";
+
+
+            toggle.onclick =
+                () => {
+
+                    item.visible =
+                        !item.visible;
+
+                    updateGraphList();
+
+                    draw();
+
+                };
+
+
+            const remove =
+                document.createElement(
+                    "button"
+                );
+
+            remove.textContent =
+                "削除";
+
+
+            remove.onclick =
+                () => {
+
+                    expressions.splice(
+                        index,
+                        1
+                    );
+
+                    updateGraphList();
+
+                    draw();
+
+                };
+
+
+            row.appendChild(
+                name
+            );
+
+            row.appendChild(
+                toggle
+            );
+
+            row.appendChild(
+                remove
+            );
+
+
+            list.appendChild(
+                row
+            );
+
+        }
+    );
+
+}
+
+
+/* ==================================================
+   マウス移動
+================================================== */
+
+let dragging = false;
+
+let lastMouseX = 0;
+
+let lastMouseY = 0;
+
+
+canvas.addEventListener(
+    "mousedown",
+    event => {
+
+        dragging = true;
+
+        canvas.classList.add(
+            "dragging"
+        );
+
+
+        lastMouseX =
+            event.clientX;
+
+        lastMouseY =
+            event.clientY;
+
+    }
+);
+
+
+window.addEventListener(
+    "mouseup",
+    () => {
+
+        dragging = false;
+
+        canvas.classList.remove(
+            "dragging"
+        );
+
+    }
+);
+
+
+window.addEventListener(
+    "mousemove",
+    event => {
+
+        if (!dragging) return;
+
+
+        const dx =
+            event.clientX -
+            lastMouseX;
+
+        const dy =
+            event.clientY -
+            lastMouseY;
+
+
+        view.centerX -=
+            dx /
+            view.scale;
+
+        view.centerY +=
+            dy /
+            view.scale;
+
+
+        lastMouseX =
+            event.clientX;
+
+        lastMouseY =
+            event.clientY;
+
+
+        draw();
+
+    }
+);
+
+
+/* ==================================================
+   マウス座標
+================================================== */
+
+canvas.addEventListener(
+    "mousemove",
+    event => {
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        const point =
+            screenToGraph(
+
+                event.clientX -
+                rect.left,
+
+                event.clientY -
+                rect.top
+
+            );
+
+
+        document.getElementById(
+            "cursorInfo"
+        ).textContent =
+
+            "x = " +
+            point.x.toFixed(2) +
+            "　y = " +
+            point.y.toFixed(2);
+
+    }
+);
+
+
+/* ==================================================
+   ズーム
+================================================== */
+
+canvas.addEventListener(
+    "wheel",
+    event => {
+
+        event.preventDefault();
+
+
+        const rect =
+            canvas.getBoundingClientRect();
+
+
+        const mouseBefore =
+            screenToGraph(
+
+                event.clientX -
+                rect.left,
+
+                event.clientY -
+                rect.top
+
+            );
+
+
+        const factor =
+            event.deltaY < 0
+                ? 1.15
+                : 1 / 1.15;
+
+
+        view.scale *= factor;
+
+
+        view.scale =
+            Math.max(
+                5,
+                Math.min(
+                    1000,
+                    view.scale
+                )
+            );
+
+
+        const mouseAfter =
+            screenToGraph(
+
+                event.clientX -
+                rect.left,
+
+                event.clientY -
+                rect.top
+
+            );
+
+
+        view.centerX +=
+            mouseBefore.x -
+            mouseAfter.x;
+
+        view.centerY +=
+            mouseBefore.y -
+            mouseAfter.y;
+
+
+        draw();
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+/* ==================================================
+   タッチ操作
+================================================== */
+
+let lastTouchX = 0;
+let lastTouchY = 0;
+let lastTouchDistance = null;
+
+
+function touchDistance(touches) {
+
+    const dx =
+        touches[0].clientX -
+        touches[1].clientX;
+
+    const dy =
+        touches[0].clientY -
+        touches[1].clientY;
+
+
+    return Math.sqrt(
+        dx * dx +
+        dy * dy
+    );
+
+}
+
+
+canvas.addEventListener(
+    "touchstart",
+    event => {
+
+        event.preventDefault();
+
+
+        if (
+            event.touches.length === 1
+        ) {
+
+            lastTouchX =
+                event.touches[0].clientX;
+
+            lastTouchY =
+                event.touches[0].clientY;
+
+        }
+
+
+        if (
+            event.touches.length === 2
+        ) {
+
+            lastTouchDistance =
+                touchDistance(
+                    event.touches
+                );
+
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "touchmove",
+    event => {
+
+        event.preventDefault();
+
+
+        /*
+           1本指
+           → 移動
+        */
+
+        if (
+            event.touches.length === 1
+        ) {
+
+            const touch =
+                event.touches[0];
+
+
+            const dx =
+                touch.clientX -
+                lastTouchX;
+
+            const dy =
+                touch.clientY -
+                lastTouchY;
+
+
+            view.centerX -=
+                dx /
+                view.scale;
+
+            view.centerY +=
+                dy /
+                view.scale;
+
+
+            lastTouchX =
+                touch.clientX;
+
+            lastTouchY =
+                touch.clientY;
+
+
+            draw();
+
+        }
+
+
+        /*
+           2本指
+           → ズーム
+        */
+
+        if (
+            event.touches.length === 2
+        ) {
+
+            const distance =
+                touchDistance(
+                    event.touches
+                );
+
+
+            if (
+                lastTouchDistance !== null
+            ) {
+
+                view.scale *=
+                    distance /
+                    lastTouchDistance;
+
+
+                view.scale =
+                    Math.max(
+                        5,
+                        Math.min(
+                            1000,
+                            view.scale
+                        )
+                    );
+
+
+                draw();
+
+            }
+
+
+            lastTouchDistance =
+                distance;
+
+        }
+
+    },
+    {
+        passive: false
+    }
+);
+
+
+canvas.addEventListener(
+    "touchend",
+    () => {
+
+        lastTouchDistance =
+            null;
+
+    }
+);
+
+
+/* ==================================================
+   Enter
+================================================== */
+
+document
+    .getElementById(
+        "expressionInput"
+    )
+    .addEventListener(
+        "keydown",
+        event => {
+
+            if (
+                event.key === "Enter"
+            ) {
+
+                addExpression();
+
+            }
+
+        }
+    );
+
+/* ==================================================
+   Part 2
+   式の解析・グラフ描画
+================================================== */
+
+
+/* ==================================================
+   数学関数
+================================================== */
+
+const FUNCTIONS = {
+
+    sin: Math.sin,
+    cos: Math.cos,
+    tan: Math.tan,
+
+    asin: Math.asin,
+    acos: Math.acos,
+    atan: Math.atan,
+
+    sqrt: Math.sqrt,
+
+    abs: Math.abs,
+
+    log: Math.log10,
+    ln: Math.log,
+
+    exp: Math.exp
+
+};
+
+
+/* ==================================================
+   式を整理
+================================================== */
+
+function normalizeExpression(text) {
+
+    text =
+        text
+            .trim()
+            .toLowerCase();
+
+
+    /* y = */
+
+    text =
+        text.replace(
+            /^\s*y\s*=\s*/,
+            ""
+        );
+
+
+    /* x = は後で判定するので
+       ここでは消さない */
+
+
+    /* π */
+
+    text =
+        text.replaceAll(
+            "π",
+            "pi"
+        );
+
+
+    /* × */
+
+    text =
+        text.replaceAll(
+            "×",
+            "*"
+        );
+
+
+    /* ÷ */
+
+    text =
+        text.replaceAll(
+            "÷",
+            "/"
+        );
+
+
+    /* √ */
+
+    text =
+        text.replaceAll(
+            "√",
+            "sqrt"
+        );
+
+
+    /* ^ */
+
+    text =
+        text.replaceAll(
+            "^",
+            "**"
+        );
+
+
+    /*
+       暗黙の掛け算
+
+       2x
+       2(x+1)
+       (x+1)(x-1)
+    */
+
+    text =
+        text.replace(
+            /(\d|\)|x|y|pi|e)(?=(x|y|\(|pi|e|sin|cos|tan|sqrt|abs|log|ln|exp))/g,
+            "$1*"
+        );
+
+
+    /*
+       )2
+    */
+
+    text =
+        text.replace(
+            /(\))(?=\d)/g,
+            "$1*"
+        );
+
+
+    return text;
+
+}
+
+
+/* ==================================================
+   安全チェック
+================================================== */
+
+function isSafeExpression(text) {
+
+    return /^[0-9a-zA-Z_+\-*/().,\s]+$/.test(
+        text
+    );
+
+}
+
+
+/* ==================================================
+   関数名を置換
+================================================== */
+
+function replaceFunctions(text) {
+
+    for (
+        const name in FUNCTIONS
+    ) {
+
+        const regex =
+            new RegExp(
+                "\\b" +
+                name +
+                "\\s*\\(",
+                "g"
+            );
+
+
+        text =
+            text.replace(
+                regex,
+                "F_" +
+                name +
+                "("
+            );
+
+    }
+
+
+    text =
+        text.replace(
+            /\bpi\b/g,
+            "PI"
+        );
+
+
+    text =
+        text.replace(
+            /\be\b/g,
+            "E"
+        );
+
+
+    return text;
+
+}
+
+
+/* ==================================================
+   関数をコンパイル
+================================================== */
+
+function compileFunction(text) {
+
+    let expression =
+        normalizeExpression(text);
+
+    if (!isSafeExpression(expression)) {
+        throw new Error(
+            "使用できない文字があります"
+        );
+    }
+
+    expression =
+        replaceFunctions(expression);
+
+    const allowed =
+        new Set([
+            "x",
+            "y",
+            "PI",
+            "E",
+
+            ...Object.keys(FUNCTIONS).map(
+                name => "F_" + name
+            )
+        ]);
+
+    const names =
+        expression.match(
+            /[A-Za-z_][A-Za-z0-9_]*/g
+        ) || [];
+
+    for (const name of names) {
+
+        if (!allowed.has(name)) {
+
+            throw new Error(
+                "未対応の名前: " + name
+            );
+
+        }
+
+    }
+
+    const functionNames =
+        Object.keys(FUNCTIONS);
+
+    const fn =
+        new Function(
+            "x",
+            "y",
+            "PI",
+            "E",
+
+            ...functionNames.map(
+                name => "F_" + name
+            ),
+
+            '"use strict"; return (' +
+            expression +
+            ');'
+        );
+
+    return function(x, y = 0) {
+
+        const result =
+            fn(
+                x,
+                y,
+                Math.PI,
+                Math.E,
+
+                ...functionNames.map(
+                    name => FUNCTIONS[name]
+                )
+            );
+
+        return Number(result);
+
+    };
+
+}
+
+
+/* ==================================================
+   式の種類を判定
+================================================== */
+
+function parseExpression(text) {
+
+    const original =
+        text.trim();
+
+
+    /*
+       x = 3
+    */
+
+    if (
+        /^x\s*=/.test(
+            original
+                .toLowerCase()
+        )
+    ) {
+
+        const right =
+            original
+                .replace(
+                    /^x\s*=/i,
+                    ""
+                );
+
+
+        return {
+
+            type: "vertical",
+
+            fn:
+                compileFunction(
+                    right
+                )
+
+        };
+
+    }
+
+
+    /*
+       y = ...
+    */
+
+    if (
+        /^y\s*=/.test(
+            original
+                .toLowerCase()
+        )
+    ) {
+
+        const right =
+            original
+                .replace(
+                    /^y\s*=/i,
+                    ""
+                );
+
+
+        return {
+
+            type: "function",
+
+            fn:
+                compileFunction(
+                    right
+                )
+
+        };
+
+    }
+
+
+    /*
+       y が含まれている
+       → 陰関数
+    */
+
+    if (
+        /y/.test(
+            original
+                .toLowerCase()
+        )
+    ) {
+
+        const equal =
+            original.indexOf("=");
+
+
+        if (
+            equal === -1
+        ) {
+
+            throw new Error(
+                "＝を入れてください"
+            );
+
+        }
+
+
+        const left =
+            original.slice(
+                0,
+                equal
+            );
+
+        const right =
+            original.slice(
+                equal + 1
+            );
+
+
+        const leftFn =
+            compileFunction(
+                left
+            );
+
+        const rightFn =
+            compileFunction(
+                right
+            );
+
+
+        return {
+
+            type: "implicit",
+
+            fn:
+                (x, y) =>
+                    leftFn(x, y) -
+                    rightFn(x, y)
+
+        };
+
+    }
+
+
+    /*
+       y= を省略した
+       xだけの式
+    */
+
+    return {
+
+        type: "function",
+
+        fn:
+            compileFunction(
+                original
+            )
+
+    };
+
+}
+
+
+/* ==================================================
+   通常の関数を描画
+================================================== */
+
+function drawFunctionGraph(
+    fn
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const minX =
+        view.centerX -
+        rect.width /
+        2 /
+        view.scale;
+
+    const maxX =
+        view.centerX +
+        rect.width /
+        2 /
+        view.scale;
+
+
+    /*
+       画面の横幅に合わせて
+       十分細かく描く
+    */
+
+    const step =
+        1 /
+        view.scale;
+
+
+    ctx.beginPath();
+
+
+    let first = true;
+
+    let previousY = null;
+
+
+    for (
+        let x = minX;
+        x <= maxX;
+        x += step
+    ) {
+
+        let y;
+
+
+        try {
+
+            y =
+                fn(x, 0);
+
+        }
+
+        catch {
+
+            y = NaN;
+
+        }
+
+
+        /*
+           定義できない
+        */
+
+        if (
+            !Number.isFinite(y)
+        ) {
+
+            first = true;
+
+            previousY = null;
+
+            continue;
+
+        }
+
+
+        /*
+           無限に飛んだところを
+           つながない
+        */
+
+        if (
+            previousY !== null &&
+            Math.abs(
+                y - previousY
+            ) > 100
+        ) {
+
+            first = true;
+
+        }
+
+
+        const p =
+            graphToScreen(
+                x,
+                y
+            );
+
+
+        if (
+            p.y < -10000 ||
+            p.y >
+            rect.height + 10000
+        ) {
+
+            first = true;
+
+            previousY = y;
+
+            continue;
+
+        }
+
+
+        if (first) {
+
+            ctx.moveTo(
+                p.x,
+                p.y
+            );
+
+            first = false;
+
+        }
+
+        else {
+
+            ctx.lineTo(
+                p.x,
+                p.y
+            );
+
+        }
+
+
+        previousY = y;
+
+    }
+
+
+    ctx.stroke();
+
+}
+
+
+/* ==================================================
+   縦線
+================================================== */
+
+function drawVerticalGraph(
+    fn
+) {
+
+    let x;
+
+
+    try {
+
+        x =
+            fn(0, 0);
+
+    }
+
+    catch {
+
+        return;
+
+    }
+
+
+    if (
+        !Number.isFinite(x)
+    ) {
+
+        return;
+
+    }
+
+
+    const top =
+        graphToScreen(
+            x,
+            100000
+        );
+
+    const bottom =
+        graphToScreen(
+            x,
+            -100000
+        );
+
+
+    ctx.beginPath();
+
+    ctx.moveTo(
+        top.x,
+        top.y
+    );
+
+    ctx.lineTo(
+        bottom.x,
+        bottom.y
+    );
+
+    ctx.stroke();
+
+}
+
+
+/* ==================================================
+   陰関数
+   F(x,y) = 0
+================================================== */
+
+function drawImplicitGraph(
+    fn
+) {
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    const minX =
+        view.centerX -
+        rect.width /
+        2 /
+        view.scale;
+
+    const maxX =
+        view.centerX +
+        rect.width /
+        2 /
+        view.scale;
+
+    const minY =
+        view.centerY -
+        rect.height /
+        2 /
+        view.scale;
+
+    const maxY =
+        view.centerY +
+        rect.height /
+        2 /
+        view.scale;
+
+
+    /*
+       1マスあたりの細かさ
+
+       画面を細かい格子に分けて
+       F(x,y) の符号が変わる場所を探す
+    */
+
+    const pixelStep = 5;
+
+
+    const dx =
+        pixelStep /
+        view.scale;
+
+    const dy =
+        pixelStep /
+        view.scale;
+
+
+    /*
+       各セルを調べる
+    */
+
+    for (
+        let x = minX;
+        x < maxX;
+        x += dx
+    ) {
+
+        for (
+            let y = minY;
+            y < maxY;
+            y += dy
+        ) {
+
+            let a;
+            let b;
+            let c;
+            let d;
+
+
+            try {
+
+                a =
+                    fn(
+                        x,
+                        y
+                    );
+
+                b =
+                    fn(
+                        x + dx,
+                        y
+                    );
+
+                c =
+                    fn(
+                        x,
+                        y + dy
+                    );
+
+                d =
+                    fn(
+                        x + dx,
+                        y + dy
+                    );
+
+            }
+
+            catch {
+
+                continue;
+
+            }
+
+
+            if (
+                !Number.isFinite(a) ||
+                !Number.isFinite(b) ||
+                !Number.isFinite(c) ||
+                !Number.isFinite(d)
+            ) {
+
+                continue;
+
+            }
+
+
+            /*
+               符号が変わっていれば
+               そのセルを線として描く
+            */
+
+            const hasHorizontal =
+                a * b <= 0 ||
+                c * d <= 0;
+
+            const hasVertical =
+                a * c <= 0 ||
+                b * d <= 0;
+
+
+            if (
+                !hasHorizontal &&
+                !hasVertical
+            ) {
+
+                continue;
+
+            }
+
+
+            const p1 =
+                graphToScreen(
+                    x,
+                    y
+                );
+
+            const p2 =
+                graphToScreen(
+                    x + dx,
+                    y + dy
+                );
+
+
+            /*
+               小さな線分を描く
+            */
+
+            ctx.beginPath();
+
+            ctx.moveTo(
+                p1.x,
+                p1.y
+            );
+
+            ctx.lineTo(
+                p2.x,
+                p2.y
+            );
+
+            ctx.stroke();
+
+        }
+
+    }
+
+}
+
+
+/* ==================================================
+   全グラフ描画
+================================================== */
+
+function drawExpressions() {
+
+    ctx.strokeStyle = "#4d73df";
+    ctx.lineWidth = 3;
+
+    for (const item of expressions) {
+
+        if (!item.visible) {
+            continue;
+        }
+
+        let parsed;
+
+        try {
+
+            parsed =
+                parseExpression(item.text);
+
+        } catch (error) {
+
+            continue;
+
+        }
+
+        if (parsed.type === "function") {
+
+            drawFunctionGraph(
+                parsed.fn
+            );
+
+        }
+
+        else if (parsed.type === "vertical") {
+
+            drawVerticalGraph(
+                parsed.fn
+            );
+
+        }
+
+        else if (parsed.type === "implicit") {
+
+            drawImplicitGraph(
+                parsed.fn
+            );
+
+        }
+
+    }
+
+}
+
+/* ==================================================
+   drawを更新
+================================================== */
+
+const oldDraw =
+    draw;
+
+
+draw =
+    function() {
+
+        oldDraw();
+
+        drawExpressions();
+
+    };
+
+
+/* ==================================================
+   初期描画
+================================================== */
+
+draw();
+
+
+
+/* ==================================================
+   起動
+================================================== */
+
+resizeCanvas();
+
+</script>
+
+</body>
+
+</html>
+
