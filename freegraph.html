@@ -2961,6 +2961,10 @@ function debugResetView() {
 
 }
 function openGameDebug() {
+    sessionStorage.setItem(
+        "FREEGRAPH_DEBUG",
+        "1"
+    );
 
     window.location.href =
         "index.html";
