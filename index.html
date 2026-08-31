@@ -1847,12 +1847,80 @@ input:focus {
 
 }
 
+#debugInfo {
+
+    position: fixed;
+
+    right: 10px;
+    bottom: 10px;
+
+    width: 260px;
+
+    padding: 12px;
+
+    background: rgba(10,10,15,0.95);
+
+    border: 1px solid #555;
+
+    border-radius: 10px;
+
+    color: #fff;
+
+    font-family: monospace;
+
+    font-size: 13px;
+
+    z-index: 9999;
+
+    display: none;
+
+}
+
+#debugInfo {
+    position: fixed;
+    right: 15px;
+    bottom: 15px;
+    width: 280px;
+    padding: 15px;
+    background: #111;
+    color: #fff;
+    border: 2px solid #6879b8;
+    border-radius: 10px;
+    z-index: 999999;
+    font-family: monospace;
+}
+.debug-section {
+
+    font-weight: bold;
+
+    color: #9daeff;
+
+    margin:
+        6px 0;
+
+}
+#debugInfo {
+    width: 360px;
+    max-height: 80vh;
+
+    overflow-y: auto;
+    overflow-x: hidden;
+
+    padding: 12px;
+
+    box-sizing: border-box;
+}
+
 </style>
 
 <script src="stages3.js"></script>
 
 <script>
 
+console.log(
+    "DEBUG:",
+    new URLSearchParams(location.search).get("debug")
+);
 /* =====================================================
    STAGE DATA
 
@@ -2588,6 +2656,13 @@ function showStageSelect() {
                 </div>
 
             </header>
+        
+        <button
+            class="debug-stage-button"
+            onclick="openDebugMode()"
+        >
+            🛠 DEBUG MODE
+        </button>
 
     `;
 
@@ -3209,8 +3284,12 @@ function startStage(stage) {
 
 
     createInputs(stage);
-
+    
     drawGraph(stage);
+
+    updateDebugInfo();
+
+    //enableDebugMode();
 
 }
 
@@ -4938,6 +5017,164 @@ function checkAnswer() {
 }
 
 
+function updateDebugInfo() {
+
+    const debug =
+        document.getElementById("debugInfo");
+
+    if (!debug || !currentStage) return;
+
+    debug.innerHTML = `
+
+        <b>🛠 DEBUG MODE</b>
+
+        <hr>
+
+        <div>
+            STAGE:
+            ${currentStage.id}
+        </div>
+
+        <div>
+            TYPE:
+            ${currentStage.type}
+        </div>
+
+        <div>
+            PROBLEM:
+            ${currentStage.problemType}
+        </div>
+
+        <hr>
+
+        <div>
+            a =
+            ${currentStage.answer?.a ?? "undefined"}
+        </div>
+
+        <div>
+            b =
+            ${currentStage.answer?.b ?? "undefined"}
+        </div>
+
+        <div>
+            x =
+            ${currentStage.answer?.x ?? "undefined"}
+        </div>
+
+        <div>
+            y =
+            ${currentStage.answer?.y ?? "undefined"}
+        </div>
+
+        <hr>
+
+        <div>
+            givenA =
+            ${currentStage.givenA ?? "undefined"}
+        </div>
+
+        <div>
+            givenB =
+            ${currentStage.givenB ?? "undefined"}
+        </div>
+
+        <hr>
+
+        <div class="debug-section">
+            CONTROL
+        </div>
+
+        <button onclick="debugShowAnswer()">
+            👁 正解を表示
+        </button>
+
+        <button onclick="debugForceCorrect()">
+            ⚡ 強制正解
+        </button>
+
+        <button onclick="debugReloadProblem()">
+            🔄 問題を再生成
+        </button>
+
+        <button onclick="debugNextProblem()">
+            ⏭ 次の問題
+        </button>
+
+        <hr>
+
+        <div class="debug-section">
+            PLAYER
+        </div>
+
+        <div>
+            Score =
+            ${typeof score !== "undefined" ? score : "undefined"}
+        </div>
+
+        <div>
+            Combo =
+            ${typeof combo !== "undefined" ? combo : "undefined"}
+        </div>
+
+        <div>
+            EXP =
+            ${typeof exp !== "undefined" ? exp : "undefined"}
+        </div>
+
+        <br>
+
+        <button onclick="debugAddScore(1000)">
+            +1000 SCORE
+        </button>
+
+        <button onclick="debugAddExp(100)">
+            +100 EXP
+        </button>
+
+        <hr>
+
+        <div class="debug-section">
+            DATA
+        </div>
+
+        <button onclick="debugShowStorage()">
+            💾 localStorage
+        </button>
+
+        <button onclick="debugClearStorage()">
+            🗑 セーブデータ削除
+        </button>
+
+    `;
+
+}
+
+function debugShowAnswer() {
+
+    if (!currentStage) return;
+
+    alert(
+        JSON.stringify(
+            currentStage.answer,
+            null,
+            2
+        )
+    );
+
+}
+
+
+function debugReloadProblem() {
+
+    if (!currentStage) return;
+
+    startStage(currentStage);
+
+}
+
+
+
 /* =====================================================
    数値比較
 ===================================================== */
@@ -4954,7 +5191,127 @@ function isClose(
 }
 
 
+function debugForceCorrect() {
 
+    if (!currentStage) return;
+
+    alert(
+        "⚡ 強制正解"
+    );
+
+    clearStage();
+
+}
+
+
+function debugNextProblem() {
+
+    if (!currentStage) return;
+
+    /*
+       現在の問題を
+       もう一度生成する
+    */
+
+    startStage(currentStage);
+
+}
+
+
+function debugAddScore(amount) {
+
+    if (
+        typeof score === "undefined"
+    ) {
+
+        alert(
+            "score という変数が見つかりません。"
+        );
+
+        return;
+
+    }
+
+    score += amount;
+
+    updateDebugInfo();
+
+}
+
+
+function debugAddExp(amount) {
+
+    if (
+        typeof exp === "undefined"
+    ) {
+
+        alert(
+            "exp という変数が見つかりません。"
+        );
+
+        return;
+
+    }
+
+    exp += amount;
+
+    updateDebugInfo();
+
+}
+
+
+function debugShowStorage() {
+
+    let text = "";
+
+    for (
+        let i = 0;
+        i < localStorage.length;
+        i++
+    ) {
+
+        const key =
+            localStorage.key(i);
+
+        const value =
+            localStorage.getItem(key);
+
+        text +=
+            key +
+            " = " +
+            value +
+            "\n\n";
+
+    }
+
+    if (text === "") {
+
+        text =
+            "localStorageは空です。";
+
+    }
+
+    alert(text);
+
+}
+
+
+function debugClearStorage() {
+
+    const ok =
+        confirm(
+            "本当にlocalStorageを削除しますか？"
+        );
+
+    if (!ok) return;
+
+    localStorage.clear();
+
+    alert(
+        "localStorageを削除しました。"
+    );
+
+}
 /* =====================================================
    不正解
 ===================================================== */
@@ -5822,6 +6179,114 @@ function showHowToPlay() {
 
 }
 
+function openDebugMode() {
+
+    const app =
+        document.getElementById("app");
+
+    app.innerHTML = `
+
+        <main class="screen">
+
+            <button
+                class="back"
+                onclick="showStageSelect()"
+            >
+                ← ステージ選択
+            </button>
+
+            <div class="card debug-panel">
+
+                <div class="debug-title">
+                    🛠 DEBUG MODE
+                </div>
+
+                <hr>
+
+                <div class="debug-section">
+                    🧪 STAGE CONTROL
+                </div>
+
+                <input
+                    id="debugStageId"
+                    type="number"
+                    min="1"
+                    placeholder="Stage ID"
+                >
+
+                <button
+                    onclick="debugStartStage()"
+                >
+                    ▶ このステージを開始
+                </button>
+
+                <br><br>
+
+                <button
+                    onclick="debugUnlockAllStages()"
+                >
+                    🔓 全ステージ解放
+                </button>
+
+                <hr>
+
+                <div class="debug-section">
+                    💾 DATA
+                </div>
+
+                <button
+                    onclick="debugShowStorage()"
+                >
+                    💾 localStorage
+                </button>
+
+                <button
+                    onclick="debugClearStorage()"
+                >
+                    🗑 セーブデータ削除
+                </button>
+
+                ${
+                    currentStage
+                    ? `
+                        <hr>
+
+                        <div class="debug-section">
+                            🧬 CURRENT PROBLEM
+                        </div>
+
+                        <div>
+                            Type:
+                            ${currentStage.type}
+                        </div>
+
+                        <div>
+                            Problem:
+                            ${currentStage.problemType}
+                        </div>
+
+                        <button
+                            onclick="debugShowAnswer()"
+                        >
+                            👁 正解を見る
+                        </button>
+
+                        <button
+                            onclick="debugForceCorrect()"
+                        >
+                            ⚡ 強制正解
+                        </button>
+                    `
+                    : ""
+                }
+
+            </div>
+
+        </main>
+
+    `;
+
+}
 /* =====================================================
    EXP SYSTEM
 ===================================================== */
@@ -6190,6 +6655,136 @@ function parseNumber(value) {
 
 }
 
+/* =====================================
+   DEBUG MODE
+===================================== */
+
+const DEBUG_MODE =
+    new URLSearchParams(location.search)
+        .get("debug") === "1";
+
+
+function updateDebugInfo() {
+
+    const debug =
+        document.getElementById("debugInfo");
+
+    if (
+        !debug ||
+        !currentStage
+    ) return;
+
+
+    debug.innerHTML = `
+
+        <div class="debug-title">
+            🛠 DEBUG MODE
+        </div>
+
+        <div>
+            STAGE:
+            ${currentStage.id}
+        </div>
+
+        <div>
+            TYPE:
+            ${currentStage.type}
+        </div>
+
+        <div>
+            PROBLEM:
+            ${currentStage.problemType}
+        </div>
+
+        <hr>
+
+        <div>
+            a =
+            ${currentStage.answer?.a ?? "undefined"}
+        </div>
+
+        <div>
+            b =
+            ${currentStage.answer?.b ?? "undefined"}
+        </div>
+
+        <div>
+            x =
+            ${currentStage.answer?.x ?? "undefined"}
+        </div>
+
+        <div>
+            y =
+            ${currentStage.answer?.y ?? "undefined"}
+        </div>
+
+        <hr>
+
+        <div>
+            givenA =
+            ${currentStage.givenA ?? "undefined"}
+        </div>
+
+        <div>
+            givenB =
+            ${currentStage.givenB ?? "undefined"}
+        </div>
+
+    `;
+
+}
+
+
+function enableDebugMode() {
+
+    if (!DEBUG_MODE) return;
+
+    const debug =
+        document.getElementById(
+            "debugInfo"
+        );
+
+    if (!debug) return;
+
+    debug.style.display =
+        "block";
+
+    updateDebugInfo();
+
+}
+
+/* =====================================
+   DEBUG MODE 起動
+===================================== */
+
+if (
+    new URLSearchParams(location.search)
+        .get("debug") === "1"
+) {
+
+    const debug =
+        document.getElementById(
+            "debugInfo"
+        );
+
+    if (debug) {
+
+        debug.style.display =
+            "block";
+
+        debug.innerHTML = `
+            <div class="debug-title">
+                🛠 DEBUG MODE
+            </div>
+
+            DEBUG MODE: ON
+            <br>
+            Waiting for stage...
+        `;
+
+    }
+
+}
 /* =====================================================
    GAME START
 ===================================================== */
@@ -6207,6 +6802,478 @@ loadGame();
 showTitle();
 
 </script>
+
+<div id="debugInfo"></div>
+
+<script>
+
+function updateDebugInfo() {
+
+    const debug =
+        document.getElementById("debugInfo");
+
+    if (!debug) return;
+
+
+    if (!currentStage) {
+
+        debug.innerHTML = `
+            <div class="debug-title">
+                🛠 DEBUG MODE
+            </div>
+
+            DEBUG MODE: ON
+            <br>
+            Waiting for stage...
+        `;
+
+        return;
+
+    }
+
+
+    debug.innerHTML = `
+
+        <div class="debug-title">
+            🛠 DEBUG MODE
+        </div>
+
+        <hr>
+
+        STAGE:
+        ${currentStage.id}
+
+        <br>
+
+        TYPE:
+        ${currentStage.type}
+
+        <br>
+
+        PROBLEM:
+        ${currentStage.problemType}
+
+        <hr>
+
+        a =
+        ${currentStage.answer?.a ?? "undefined"}
+
+        <br>
+
+        b =
+        ${currentStage.answer?.b ?? "undefined"}
+
+        <br>
+
+        x =
+        ${currentStage.answer?.x ?? "undefined"}
+
+        <br>
+
+        y =
+        ${currentStage.answer?.y ?? "undefined"}
+
+        <hr>
+
+        <div class="debug-section">
+            CONTROL
+        </div>
+
+        <button
+            onclick="debugShowAnswer()"
+        >
+            👁 正解を表示
+        </button>
+
+        <button
+            onclick="debugForceCorrect()"
+        >
+            ⚡ 強制正解
+        </button>
+
+        <button
+            onclick="debugReloadProblem()"
+        >
+            🔄 問題を再生成
+        </button>
+
+        <hr>
+
+        <div class="debug-section">
+            DATA
+        </div>
+
+        <button
+            onclick="debugShowStorage()"
+        >
+            💾 localStorage
+        </button>
+        
+        <button onclick="debugUnlockAllStages()">
+            🔓 全ステージ解放
+        </button>
+
+        <hr>
+
+        <div class="debug-section">
+            🧪 STAGE CONTROL
+        </div>
+
+        <input
+            id="debugStageId"
+            type="number"
+            min="1"
+            placeholder="Stage ID"
+            style="
+                width:100px;
+                padding:6px;
+                margin:4px;
+            "
+        >
+
+        <button onclick="debugStartStage()">
+            ▶ このステージを開始
+        </button>
+
+        <br>
+
+        <button onclick="debugPreviousStage()">
+            ⏮ 前のステージ
+        </button>
+
+        <button onclick="debugNextStage()">
+            ⏭ 次のステージ
+        </button>
+
+        <hr>
+
+        <div class="debug-section">
+            🧪 GENERATOR TEST
+        </div>
+
+        <button onclick="debugGenerateTest()">
+            🎲 問題を10回生成
+        </button>
+
+        <div
+            id="debugTestLog"
+            style="
+                max-height:300px;
+                overflow:auto;
+                margin-top:8px;
+                padding:8px;
+                background:#111318;
+                border:1px solid #303440;
+                border-radius:6px;
+                white-space:pre-wrap;
+                font-family:monospace;
+                font-size:12px;
+            "
+        >
+            テスト結果はここに表示されます。
+        </div>
+    `;
+
+}
+
+function debugGenerateTest() {
+
+    const log =
+        document.getElementById(
+            "debugTestLog"
+        );
+
+    if (!log) return;
+
+    log.innerHTML = "";
+
+    for (
+        let i = 1;
+        i <= 10;
+        i++
+    ) {
+
+        try {
+
+            const problem =
+                generateProblem(
+                    currentStage
+                );
+
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.className =
+                "debug-test-ok";
+
+
+            div.textContent =
+                "TEST " +
+                i +
+                " ✓ OK\n" +
+                JSON.stringify(
+                    problem,
+                    null,
+                    2
+                );
+
+
+            log.appendChild(div);
+
+        }
+
+        catch (error) {
+
+            const div =
+                document.createElement(
+                    "div"
+                );
+
+            div.className =
+                "debug-test-error";
+
+
+            div.textContent =
+                "TEST " +
+                i +
+                " ✗ ERROR\n" +
+                error.message;
+
+
+            log.appendChild(div);
+
+        }
+
+    }
+
+}
+function debugStartStage() {
+
+    const input =
+        document.getElementById(
+            "debugStageId"
+        );
+
+    const id =
+        Number(input.value);
+
+    if (!id) {
+
+        alert("Stage IDを入力してください。");
+
+        return;
+
+    }
+
+
+    const stage =
+        stages.find(
+            stage => stage.id === id
+        );
+
+
+    if (!stage) {
+
+        alert(
+            "Stage " +
+            id +
+            " が見つかりません。"
+        );
+
+        return;
+
+    }
+
+
+    startStage(stage);
+
+}
+
+
+function debugPreviousStage() {
+
+    if (!currentStage) return;
+
+
+    const index =
+        stages.findIndex(
+            stage =>
+                stage.id ===
+                currentStage.id
+        );
+
+
+    if (index <= 0) {
+
+        alert("これが最初のステージです。");
+
+        return;
+
+    }
+
+
+    startStage(
+        stages[index - 1]
+    );
+
+}
+
+
+function debugNextStage() {
+
+    if (!currentStage) return;
+
+
+    const index =
+        stages.findIndex(
+            stage =>
+                stage.id ===
+                currentStage.id
+        );
+
+
+    if (
+        index === -1 ||
+        index >= stages.length - 1
+    ) {
+
+        alert("これが最後のステージです。");
+
+        return;
+
+    }
+
+
+    startStage(
+        stages[index + 1]
+    );
+
+}
+
+function debugUnlockAllStages() {
+
+    const save = {
+
+        cleared: stages.map(
+            stage => stage.id
+        ),
+
+        score: 999999,
+
+        exp: 999999,
+
+        level: 99
+
+    };
+
+
+    localStorage.setItem(
+        "function_game_save_v1",
+        JSON.stringify(save)
+    );
+
+
+    alert(
+        "🔓 全ステージを解放しました！"
+    );
+
+
+    location.reload();
+
+}
+function debugShowAnswer() {
+
+    if (!currentStage) return;
+
+    alert(
+        "正解データ\n\n" +
+        JSON.stringify(
+            currentStage.answer,
+            null,
+            2
+        )
+    );
+
+}
+
+
+function debugForceCorrect() {
+
+    if (!currentStage) return;
+
+    clearStage();
+
+}
+
+
+function debugReloadProblem() {
+
+    if (!currentStage) return;
+
+    startStage(currentStage);
+
+}
+
+
+function debugShowStorage() {
+
+    let text = "";
+
+    for (
+        let i = 0;
+        i < localStorage.length;
+        i++
+    ) {
+
+        const key =
+            localStorage.key(i);
+
+        text +=
+            key +
+            " = " +
+            localStorage.getItem(key) +
+            "\n\n";
+
+    }
+
+    alert(
+        text || "localStorageは空です。"
+    );
+
+}
+
+
+
+/* =========================
+   DEBUG MODE判定
+========================= */
+
+if (
+    new URLSearchParams(location.search)
+        .get("debug") === "1"
+) {
+
+    const debug =
+        document.getElementById(
+            "debugInfo"
+        );
+
+    if (debug) {
+
+        debug.style.display =
+            "block";
+
+        updateDebugInfo();
+
+    }
+
+}
+
+</script>
+
 
 </body>
 
