@@ -6758,8 +6758,9 @@ function enableDebugMode() {
 ===================================== */
 
 if (
-    new URLSearchParams(location.search)
-        .get("debug") === "1"
+    sessionStorage.getItem(
+        "FREEGRAPH_DEBUG"
+    ) === "1"
 ) {
 
     const debug =
