@@ -1847,48 +1847,9 @@ input:focus {
 
 }
 
-#debugInfo {
 
-    position: fixed;
 
-    right: 10px;
-    bottom: 10px;
 
-    width: 260px;
-
-    padding: 12px;
-
-    background: rgba(10,10,15,0.95);
-
-    border: 1px solid #555;
-
-    border-radius: 10px;
-
-    color: #fff;
-
-    font-family: monospace;
-
-    font-size: 13px;
-
-    z-index: 9999;
-
-    display: none;
-
-}
-
-#debugInfo {
-    position: fixed;
-    right: 15px;
-    bottom: 15px;
-    width: 280px;
-    padding: 15px;
-    background: #111;
-    color: #fff;
-    border: 2px solid #6879b8;
-    border-radius: 10px;
-    z-index: 999999;
-    font-family: monospace;
-}
 .debug-section {
 
     font-weight: bold;
@@ -1900,6 +1861,10 @@ input:focus {
 
 }
 #debugInfo {
+    position: fixed;
+    right: 15px;
+    bottom: 15px;
+
     width: 360px;
     max-height: 80vh;
 
@@ -1907,8 +1872,20 @@ input:focus {
     overflow-x: hidden;
 
     padding: 12px;
-
     box-sizing: border-box;
+
+    background: rgba(10, 10, 15, 0.95);
+    color: #fff;
+
+    border: 2px solid #6879b8;
+    border-radius: 10px;
+
+    font-family: monospace;
+    font-size: 13px;
+
+    z-index: 999999;
+
+    display: none;
 }
 
 </style>
@@ -2645,6 +2622,8 @@ function showStageSelect() {
     let html = `
 
         <main class="stage-map">
+            
+            <div id="debugInfo" style="display:none;"></div>
 
             <header class="map-header">
 
@@ -2918,7 +2897,12 @@ function showStageSelect() {
 
     app.innerHTML =
         html;
-
+    
+    if (
+        sessionStorage.getItem("FREEGRAPH_DEBUG") === "1"
+    ) {
+        updateDebugInfo();
+    }
 }
 
 /* =====================================================
@@ -5019,6 +5003,12 @@ function checkAnswer() {
 
 function updateDebugInfo() {
 
+    console.log(
+        "updateDebugInfo:",
+        document.getElementById("debugInfo")
+    );
+
+
     const debug =
         document.getElementById("debugInfo");
 
@@ -6757,21 +6747,28 @@ function enableDebugMode() {
    DEBUG MODE 起動
 ===================================== */
 
+console.log(
+    "INDEX DEBUG:",
+    sessionStorage.getItem("FREEGRAPH_DEBUG")
+);
+
 if (
-    sessionStorage.getItem(
-        "FREEGRAPH_DEBUG"
-    ) === "1"
+    sessionStorage.getItem("FREEGRAPH_DEBUG") === "1"
 ) {
 
+    console.log("★★ DEBUG表示処理 START ★★");
+
     const debug =
-        document.getElementById(
-            "debugInfo"
-        );
+        document.getElementById("debugInfo");
+
+    console.log(
+        "debugInfo:",
+        debug
+    );
 
     if (debug) {
 
-        debug.style.display =
-            "block";
+        debug.style.display = "block";
 
         debug.innerHTML = `
             <div class="debug-title">
@@ -7253,19 +7250,15 @@ function debugShowStorage() {
 ========================= */
 
 if (
-    new URLSearchParams(location.search)
-        .get("debug") === "1"
+    sessionStorage.getItem("FREEGRAPH_DEBUG") === "1"
 ) {
 
     const debug =
-        document.getElementById(
-            "debugInfo"
-        );
+        document.getElementById("debugInfo");
 
     if (debug) {
 
-        debug.style.display =
-            "block";
+        debug.style.display = "block";
 
         updateDebugInfo();
 
