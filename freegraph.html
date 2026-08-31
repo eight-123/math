@@ -317,6 +317,164 @@ button:active {
 
 }
 
+/* =========================
+   DEBUGボタン
+========================= */
+
+#debugButton {
+
+    position: absolute;
+
+    display: none;
+
+    width: 28px;
+    height: 28px;
+
+    padding: 0;
+
+    border-radius: 50%;
+
+    background: #292e3a;
+
+    border: 1px solid #687080;
+
+    color: #aaa;
+
+    font-size: 13px;
+
+    z-index: 10;
+
+    transform: translate(-50%, -50%);
+
+}
+
+#debugButton:hover {
+
+    background: #3b4252;
+
+    color: white;
+
+}
+
+/* =====================================
+   DEBUG PANEL
+===================================== */
+
+#debugPanel {
+
+    position: fixed;
+
+    top: 70px;
+
+    right: 15px;
+
+    width: 320px;
+
+    max-width: calc(100vw - 30px);
+
+    max-height: calc(100vh - 90px);
+
+    overflow-y: auto;
+
+    display: none;
+
+    z-index: 1000;
+
+    background: #171a21;
+
+    border:
+        1px solid #555d70;
+
+    border-radius: 12px;
+
+    box-shadow:
+        0 10px 40px
+        rgba(0,0,0,0.5);
+
+    color: white;
+
+    font-family:
+        Consolas,
+        monospace;
+
+}
+
+
+/* ヘッダー */
+
+.debug-header {
+
+    display: flex;
+
+    justify-content:
+        space-between;
+
+    align-items: center;
+
+    padding: 12px;
+
+    background: #202530;
+
+    border-bottom:
+        1px solid #3b4150;
+
+    font-weight: bold;
+
+}
+
+
+.debug-header button {
+
+    padding:
+        3px 9px;
+
+    font-size: 18px;
+
+}
+
+
+/* セクション */
+
+.debug-section {
+
+    padding: 12px;
+
+    border-bottom:
+        1px solid #303540;
+
+}
+
+
+.debug-title {
+
+    color: #9ba8c7;
+
+    font-size: 12px;
+
+    margin-bottom: 8px;
+
+}
+
+
+/* 情報 */
+
+.debug-info {
+
+    line-height: 1.7;
+
+    font-size: 13px;
+
+}
+
+
+/* ボタン */
+
+#debugPanel button {
+
+    margin-top: 6px;
+
+}
+
 </style>
 
 </head>
@@ -351,11 +509,20 @@ button:active {
 
     <div class="graph-area">
 
-        <canvas id="graphCanvas"></canvas>
+        <canvas
+            id="graphCanvas"
+        ></canvas>
 
         <div id="cursorInfo">
             x = 0　y = 0
         </div>
+
+        <button
+            id="debugButton"
+            onclick="openDebugMode()"
+        >
+            ⚙
+        </button>
 
     </div>
 
@@ -441,17 +608,11 @@ function resizeCanvas() {
     const dpr =
         window.devicePixelRatio || 1;
 
-
     canvas.width =
-        Math.round(
-            rect.width * dpr
-        );
+        rect.width * dpr;
 
     canvas.height =
-        Math.round(
-            rect.height * dpr
-        );
-
+        rect.height * dpr;
 
     ctx.setTransform(
         dpr,
@@ -462,11 +623,9 @@ function resizeCanvas() {
         0
     );
 
-
     draw();
 
 }
-
 
 window.addEventListener(
     "resize",
@@ -1036,7 +1195,7 @@ function goBack() {
     else {
 
         location.href =
-            "index.html";
+            "math4.html";
 
     }
 
@@ -2534,15 +2693,358 @@ draw =
 
 draw();
 
+/* =====================================
+   DEBUG MODE 隠し入口
+===================================== */
+
+const debugButton =
+    document.getElementById(
+        "debugButton"
+    );
 
 
+/*
+   DEBUGボタンを表示できる条件
+*/
+
+function checkDebugUnlock() {
+
+    /*
+       十分にズームされているか
+    */
+
+    if (view.scale < 300) {
+
+        debugButton.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    /*
+       原点が画面内にあるか
+    */
+
+    const origin =
+        graphToScreen(
+            0,
+            0
+        );
+
+    const rect =
+        canvas.getBoundingClientRect();
+
+
+    if (
+        origin.x < 0 ||
+        origin.x > rect.width ||
+        origin.y < 0 ||
+        origin.y > rect.height
+    ) {
+
+        debugButton.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    /*
+       円が描かれているか
+    */
+
+    const hasCircle =
+        expressions.some(
+            item => {
+
+                if (!item.visible) {
+                    return false;
+                }
+
+                const text =
+                    item.text
+                        .replaceAll(
+                            " ",
+                            ""
+                        )
+                        .toLowerCase();
+
+                /*
+                   x² + y² = 数字
+                   の形を確認
+                */
+
+                return /^x\^2\+y\^2=\d+(\.\d+)?$/.test(
+                    text
+                );
+
+            }
+        );
+
+
+    if (!hasCircle) {
+
+        debugButton.style.display =
+            "none";
+
+        return;
+
+    }
+
+
+    /*
+       条件達成
+    */
+
+    debugButton.style.display =
+        "block";
+
+
+    /*
+       ボタンを原点に配置
+    */
+
+    debugButton.style.left =
+        origin.x + "px";
+
+    debugButton.style.top =
+        origin.y + "px";
+
+}
+
+
+/* =====================================
+   DEBUG MODE
+===================================== */
+
+function openDebugMode() {
+
+    const panel =
+        document.getElementById(
+            "debugPanel"
+        );
+
+
+    panel.style.display =
+        "block";
+
+
+    updateDebugPanel();
+
+}
+
+function closeDebugMode() {
+
+    document.getElementById(
+        "debugPanel"
+    ).style.display =
+        "none";
+
+}
+
+function updateDebugPanel() {
+
+    /*
+       グラフ情報
+    */
+
+    document.getElementById(
+        "debugGraphInfo"
+    ).innerHTML =
+
+        "<div class='debug-info'>" +
+
+        "Graphs: " +
+        expressions.length +
+
+        "<br>" +
+
+        "Visible: " +
+        expressions.filter(
+            item => item.visible
+        ).length +
+
+        "</div>";
+
+
+    /*
+       View情報
+    */
+
+    document.getElementById(
+        "debugViewInfo"
+    ).innerHTML =
+
+        "<div class='debug-info'>" +
+
+        "centerX: " +
+        view.centerX.toFixed(3) +
+
+        "<br>" +
+
+        "centerY: " +
+        view.centerY.toFixed(3) +
+
+        "<br>" +
+
+        "scale: " +
+        view.scale.toFixed(2) +
+
+        "</div>";
+
+
+    /*
+       式一覧
+    */
+
+    let html = "";
+
+
+    expressions.forEach(
+        (item, index) => {
+
+            html +=
+
+                "<div class='debug-info'>" +
+
+                "#" +
+                index +
+
+                " : " +
+
+                item.text +
+
+                "<br>" +
+
+                "visible = " +
+                item.visible +
+
+                "</div>";
+
+        }
+    );
+
+
+    if (
+        html === ""
+    ) {
+
+        html =
+            "<div class='debug-info'>" +
+            "No expressions" +
+            "</div>";
+
+    }
+
+
+    document.getElementById(
+        "debugExpressionInfo"
+    ).innerHTML =
+        html;
+
+}
+
+function debugResetView() {
+
+    view.centerX = 0;
+
+    view.centerY = 0;
+
+    view.scale = 50;
+
+    draw();
+
+    updateDebugPanel();
+
+}
+function openGameDebug() {
+
+    window.location.href =
+        "math4.html?debug=1";
+
+}
 /* ==================================================
    起動
 ================================================== */
-
+debugButton.style.display = "none";
 resizeCanvas();
 
+canvas.addEventListener("wheel", () => {
+    setTimeout(checkDebugUnlock, 0);
+});
+
+canvas.addEventListener("touchmove", () => {
+    setTimeout(checkDebugUnlock, 0);
+});
+
 </script>
+
+<div id="debugPanel">
+
+    <div class="debug-header">
+
+        <span>🛠 DEBUG MODE</span>
+
+        <button onclick="closeDebugMode()">
+            ×
+        </button>
+
+    </div>
+
+
+    <div class="debug-section">
+
+        <div class="debug-title">
+            GRAPH
+        </div>
+
+        <div id="debugGraphInfo"></div>
+
+    </div>
+
+
+    <div class="debug-section">
+
+        <div class="debug-title">
+            VIEW
+        </div>
+
+        <div id="debugViewInfo"></div>
+
+        <button onclick="debugResetView()">
+            RESET VIEW
+        </button>
+
+    </div>
+
+
+    <div class="debug-section">
+
+        <div class="debug-title">
+            EXPRESSIONS
+        </div>
+
+        <div id="debugExpressionInfo"></div>
+
+    </div>
+
+
+    <div class="debug-section">
+
+        <div class="debug-title">
+            GAME
+        </div>
+
+        <button onclick="openGameDebug()">
+            OPEN GAME DEBUG
+        </button>
+
+    </div>
+
+</div>
 
 </body>
 
