@@ -2472,6 +2472,11 @@ let playerLevel = 1;
 
 let clearData = [];
 
+let DEBUG_MODE =
+    sessionStorage.getItem(
+        "FREEGRAPH_DEBUG"
+    ) === "1";
+
 
 /* =====================================================
    SAVE SYSTEM
